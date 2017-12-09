@@ -1,7 +1,7 @@
 #ifndef __SQLPARSER__CREATE_STATEMENT_H__
 #define __SQLPARSER__CREATE_STATEMENT_H__
 
-#include "SQLStatement.h"
+#include "src/sql/SQLStatement.h"
 
 // Note: Implementations of constructors and destructors can be found in statements.cpp.
 namespace hsql {
@@ -12,8 +12,9 @@ namespace hsql {
     enum DataType {
       UNKNOWN,
       TEXT,
-      INT,
-      DOUBLE
+      INTEGER,
+      REAL,
+      BLOB
     };
 
     ColumnDefinition(char* name, DataType type);
@@ -25,8 +26,9 @@ namespace hsql {
 
   enum CreateType {
     kCreateTable,
-    kCreateTableFromTbl, // Hyrise file format
-    kCreateView
+    kCreateView,
+    kCreateIndex,
+    kCreateTrigger,
   };
 
   // Represents SQL Create statements.
@@ -36,6 +38,8 @@ namespace hsql {
     virtual ~CreateStatement();
 
     CreateType type;
+    bool isVirtual;   // default: false
+    bool isTemporary; // default: false
     bool ifNotExists; // default: false
     char* filePath;   // default: nullptr
     char* schema;     // default: nullptr

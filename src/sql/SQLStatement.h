@@ -3,24 +3,18 @@
 
 #include <vector>
 
-#include "Expr.h"
+#include "src/sql/Expr.h"
 
 namespace hsql {
   enum StatementType {
     kStmtError, // unused
     kStmtSelect,
-    kStmtImport,
     kStmtInsert,
     kStmtUpdate,
     kStmtDelete,
     kStmtCreate,
     kStmtDrop,
-    kStmtPrepare,
-    kStmtExecute,
-    kStmtExport,
-    kStmtRename,
-    kStmtAlter,
-    kStmtShow
+    kStmtAlter
   };
 
   // Base struct for every SQL statement

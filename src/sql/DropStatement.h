@@ -1,7 +1,7 @@
 #ifndef __SQLPARSER__DROP_STATEMENT_H__
 #define __SQLPARSER__DROP_STATEMENT_H__
 
-#include "SQLStatement.h"
+#include "src/sql/SQLStatement.h"
 
 // Note: Implementations of constructors and destructors can be found in statements.cpp.
 namespace hsql {

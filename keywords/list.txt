@@ -1,57 +1,3 @@
-/**
- * lexer
- *
- *
- */
-
-
-/***************************
- ** Section 1: Definitions
- ***************************/
-%{
-
-#include "src/sql/Expr.h"
-#include "src/parser/bison_parser.h"
-#include <stdio.h>
-
-#define TOKEN(name) { return SQL_##name; }
-
-%}
-/***************************
- ** Section 2: Rules
- ***************************/
-
-/* Make reentrant */
-%option reentrant
-%option bison-bridge
-
-/* performance tweeks */
-%option never-interactive
-%option batch
-
-/* other flags */
-%option noyywrap
-%option nounput
-%option warn
-%option case-insensitive
-%option prefix="hsql_"
-%option bison-locations 
-/* %option nodefault */
-
-
-%s COMMENT
-
-/***************************
- ** Section 3: Rules
- ***************************/
-%%
-
---				BEGIN(COMMENT);
-<COMMENT>[^\n]*	/* skipping comment content until a end of line is read */;
-<COMMENT>\n 	BEGIN(INITIAL);
-
-[ \t\n]+	/* skip whitespace */;
-
 CURRENT_TIMESTAMP TOKEN(CURRENT_TIMESTAMP)
 AUTOINCREMENT     TOKEN(AUTOINCREMENT)
 CURRENT_DATE      TOKEN(CURRENT_DATE)
@@ -185,51 +131,22 @@ OF                TOKEN(OF)
 ON                TOKEN(ON)
 OR                TOKEN(OR)
 TO                TOKEN(TO)
-
-"!="		TOKEN(NOTEQUALS)
-"<>" 		TOKEN(NOTEQUALS)
-"<="		TOKEN(LESSEQ)
-">="		TOKEN(GREATEREQ)
-"||"		TOKEN(CONCAT)
-
-[-+*/(){},.;<>=^%:?[\]|]	{ return yytext[0]; }
-
--?[0-9]+"."[0-9]* |
-"."[0-9]*	{
-	yylval->fval = atof(yytext);
-	return SQL_FLOATVAL;
-}
-
--?[0-9]+	{
-	yylval->ival = atol(yytext);
-	return SQL_INTVAL;
-}
-
-\"[^\"\n]+\" {
-	// Crop the leading and trailing quote char
-	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
-	return SQL_IDENTIFIER;
-}
-
-[A-Za-z][A-Za-z0-9_]* {
-	yylval->sval = strdup(yytext);
-	return SQL_IDENTIFIER;
-}
-
-'[^'\n]*' {
-	// Crop the leading and trailing quote char
-	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
-	return SQL_STRING;
-}
-
-. { fprintf(stderr, "[SQL-Lexer-Error] Unknown Character: %c\n", yytext[0]); return 0; }
-
-
-%%
-/***************************
- ** Section 3: User code
- ***************************/
-
-int yyerror(const char *msg) {
-    fprintf(stderr, "[SQL-Lexer-Error] %s\n",msg); return 0;
-}
+/* SQL Keywords */
+%token CURRENT_TIMESTAMP AUTOINCREMENT CURRENT_DATE
+%token CURRENT_TIME TRANSACTION CONSTRAINT DEFERRABLE
+%token REFERENCES EXCLUSIVE IMMEDIATE INITIALLY INTERSECT
+%token RECURSIVE SAVEPOINT TEMPORARY CONFLICT DATABASE
+%token DEFERRED DISTINCT RESTRICT ROLLBACK ANALYZE BETWEEN
+%token BOOLEAN CASCADE COLLATE DEFAULT EXPLAIN FOREIGN
+%token INDEXED INSTEAD INTEGER NATURAL NOTNULL PRIMARY
+%token REINDEX RELEASE REPLACE TRIGGER VIRTUAL WITHOUT
+%token ACTION ATTACH BEFORE COLUMN COMMIT CREATE DELETE
+%token DETACH DOUBLE ESCAPE EXCEPT EXISTS HAVING IGNORE
+%token INSERT ISNULL OFFSET PRAGMA REGEXP RENAME SELECT
+%token UNIQUE UPDATE VACUUM VALUES ABORT AFTER ALTER BEGIN
+%token CHECK CROSS FLOAT GROUP INDEX INNER LIMIT MATCH ORDER
+%token OUTER QUERY RAISE RIGHT TABLE UNION USING WHERE BLOB
+%token CASE CAST DESC DROP EACH ELSE FAIL FROM FULL GLOB
+%token INTO JOIN LEFT LIKE LONG NULL PLAN REAL TEMP TEXT
+%token THEN VIEW WHEN WITH ADD ALL AND ASC END FOR INT KEY
+%token NOT ROW SET AS BY IF IN IS NO OF ON OR TO

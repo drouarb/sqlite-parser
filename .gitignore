@@ -48,3 +48,12 @@ cmake-build-debug/
 
 # macOS compilation dirs
 *.dSYM
+
+# Editor files
+*~
+.#*
+\#*#
+.DS_Store
+
+# Build artifacts
+/bazel-*

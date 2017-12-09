@@ -1,5 +1,5 @@
 
-#include "statements.h"
+#include "src/sql/statements.h"
 
 namespace hsql {
 
@@ -70,37 +70,6 @@ namespace hsql {
     free(name);
   }
 
-  // ExecuteStatement
-  ExecuteStatement::ExecuteStatement() :
-    SQLStatement(kStmtExecute),
-    name(nullptr),
-    parameters(nullptr) {}
-
-  ExecuteStatement::~ExecuteStatement() {
-    free(name);
-
-    if (parameters != nullptr) {
-      for (Expr* param : *parameters) {
-        delete param;
-      }
-      delete parameters;
-    }
-  }
-
-  // ImportStatement
-  ImportStatement::ImportStatement(ImportType type) :
-    SQLStatement(kStmtImport),
-    type(type),
-    filePath(nullptr),
-    schema(nullptr),
-    tableName(nullptr) {};
-
-  ImportStatement::~ImportStatement() {
-    free(filePath);
-    free(schema);
-    free(tableName);
-  }
-
   // InsertStatement
   InsertStatement::InsertStatement(InsertType type) :
     SQLStatement(kStmtInsert),
@@ -129,18 +98,6 @@ namespace hsql {
       }
       delete values;
     }
-  }
-
-  // ShowStatament
-  ShowStatement::ShowStatement(ShowType type) :
-    SQLStatement(kStmtShow),
-    type(type),
-    schema(nullptr),
-    name(nullptr) {}
-
-  ShowStatement::~ShowStatement() {
-    free(schema);
-    free(name);
   }
 
   // SelectStatement.h

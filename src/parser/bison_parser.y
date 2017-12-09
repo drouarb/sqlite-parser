@@ -11,8 +11,8 @@
  ** Section 1: C Declarations
  *********************************/
 
-#include "bison_parser.h"
-#include "flex_lexer.h"
+#include "src/parser/bison_parser.h"
+#include "src/parser/flex_lexer.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -35,9 +35,9 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %code requires {
 // %code requires block
 
-#include "../sql/statements.h"
-#include "../SQLParserResult.h"
-#include "parser_typedef.h"
+#include "src/sql/statements.h"
+#include "src/SQLParserResult.h"
+#include "src/parser/parser_typedef.h"
 
 // Auto update column and line number
 #define YY_USER_ACTION \
@@ -54,10 +54,6 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 				} \
 		}
 }
-
-// Define the names of the created files (defined in Makefile)
-// %output  "bison_parser.cpp"
-// %defines "bison_parser.h"
 
 // Tell bison to create a reentrant parser
 %define api.pure full
@@ -99,15 +95,11 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 
 	hsql::SQLStatement* statement;
 	hsql::SelectStatement* 	select_stmt;
-	hsql::ImportStatement* 	import_stmt;
 	hsql::CreateStatement* 	create_stmt;
 	hsql::InsertStatement* 	insert_stmt;
 	hsql::DeleteStatement* 	delete_stmt;
 	hsql::UpdateStatement* 	update_stmt;
 	hsql::DropStatement*   	drop_stmt;
-	hsql::PrepareStatement* prep_stmt;
-	hsql::ExecuteStatement* exec_stmt;
-	hsql::ShowStatement*    show_stmt;
 	
 	hsql::TableName table_name;
 	hsql::TableRef* table;
@@ -155,49 +147,48 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %token <ival> INTVAL
 
 /* SQL Keywords */
-%token DEALLOCATE PARAMETERS INTERSECT TEMPORARY TIMESTAMP
-%token DISTINCT NVARCHAR RESTRICT TRUNCATE ANALYZE BETWEEN
-%token CASCADE COLUMNS CONTROL DEFAULT EXECUTE EXPLAIN
-%token HISTORY INTEGER NATURAL PREPARE PRIMARY SCHEMAS
-%token SPATIAL VIRTUAL BEFORE COLUMN CREATE DELETE DIRECT
-%token DOUBLE ESCAPE EXCEPT EXISTS GLOBAL HAVING IMPORT
-%token INSERT ISNULL OFFSET RENAME SCHEMA SELECT SORTED
-%token TABLES UNIQUE UNLOAD UPDATE VALUES AFTER ALTER CROSS
-%token DELTA GROUP INDEX INNER LIMIT LOCAL MERGE MINUS ORDER
-%token OUTER RIGHT TABLE UNION USING WHERE CALL CASE DATE
-%token DESC DROP ELSE FILE FROM FULL HASH HINT INTO JOIN
-%token LEFT LIKE LOAD NULL PART PLAN SHOW TEXT THEN TIME
-%token VIEW WHEN WITH ADD ALL AND ASC CSV END FOR INT KEY
-%token NOT OFF SET TBL TOP AS BY IF IN IS OF ON OR TO
-%token ARRAY CONCAT ILIKE
+%token CURRENT_TIMESTAMP AUTOINCREMENT CURRENT_DATE
+%token CURRENT_TIME TRANSACTION CONSTRAINT DEFERRABLE
+%token REFERENCES EXCLUSIVE IMMEDIATE INITIALLY INTERSECT
+%token RECURSIVE SAVEPOINT TEMPORARY CONFLICT DATABASE
+%token DEFERRED DISTINCT RESTRICT ROLLBACK ANALYZE BETWEEN
+%token BOOLEAN CASCADE COLLATE DEFAULT EXPLAIN FOREIGN
+%token INDEXED INSTEAD INTEGER NATURAL NOTNULL PRIMARY
+%token REINDEX RELEASE REPLACE TRIGGER VIRTUAL WITHOUT
+%token ACTION ATTACH BEFORE COLUMN COMMIT CREATE DELETE
+%token DETACH DOUBLE ESCAPE EXCEPT EXISTS HAVING IGNORE
+%token INSERT ISNULL OFFSET PRAGMA REGEXP RENAME SELECT
+%token UNIQUE UPDATE VACUUM VALUES ABORT AFTER ALTER BEGIN
+%token CHECK CROSS FLOAT GROUP INDEX INNER LIMIT MATCH ORDER
+%token OUTER QUERY RAISE RIGHT TABLE UNION USING WHERE BLOB
+%token CASE CAST DESC DROP EACH ELSE FAIL FROM FULL GLOB
+%token INTO JOIN LEFT LIKE LONG NULL PLAN REAL TEMP TEXT
+%token THEN VIEW WHEN WITH ADD ALL AND ASC END FOR INT KEY
+%token NOT ROW SET AS BY IF IN IS NO OF ON OR TO
 
 /*********************************
  ** Non-Terminal types (http://www.gnu.org/software/bison/manual/html_node/Type-Decl.html)
  *********************************/
 %type <stmt_vec>	statement_list
-%type <statement> 	statement preparable_statement
-%type <exec_stmt>	execute_statement
-%type <prep_stmt>	prepare_statement
+%type <statement> 	statement
 %type <select_stmt> select_statement select_with_paren select_no_paren select_clause select_paren_or_clause
-%type <import_stmt> import_statement
 %type <create_stmt> create_statement
 %type <insert_stmt> insert_statement
-%type <delete_stmt> delete_statement truncate_statement
+%type <delete_stmt> delete_statement
 %type <update_stmt> update_statement
 %type <drop_stmt>	drop_statement
-%type <show_stmt>	show_statement  
 %type <table_name>  table_name
-%type <sval> 		opt_alias alias file_path prepare_target_query
-%type <bval> 		opt_not_exists opt_exists opt_distinct
-%type <uval>		import_file_type opt_join_type column_type
+%type <sval> 		opt_alias alias
+%type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary
+%type <uval>		opt_join_type column_type
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
 %type <expr>		function_expr between_expr expr_alias param_expr
 %type <expr> 		column_name literal int_literal num_literal string_literal
-%type <expr> 		comp_expr opt_where join_condition opt_having case_expr in_expr hint
-%type <expr> 		array_expr array_index null_literal
-%type <limit>		opt_limit opt_top
+%type <expr> 		comp_expr opt_where join_condition opt_having case_expr in_expr
+%type <expr> 		null_literal
+%type <limit>		opt_limit
 %type <order>		order_desc
 %type <order_type>	opt_order_type
 %type <column_t>	column_def
@@ -205,7 +196,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <group_t>		opt_group
 
 %type <str_vec>		ident_commalist opt_column_list
-%type <expr_vec> 	expr_list select_list literal_list hint_list opt_hints
+%type <expr_vec> 	expr_list select_list literal_list
 %type <table_vec> 	table_ref_commalist
 %type <order_vec>	opt_order order_list
 %type <update_vec>	update_clause_commalist
@@ -268,144 +259,28 @@ statement_list:
 	;
 
 statement:
-		prepare_statement opt_hints {
-			$$ = $1;
-			$$->hints = $2;
-		}
-	|	preparable_statement opt_hints {
-			$$ = $1;
-			$$->hints = $2;
-		}
-	|	show_statement {
-			$$ = $1;
-		}
-	;
-
-
-preparable_statement:
 		select_statement { $$ = $1; }
-	|	import_statement { $$ = $1; }
 	|	create_statement { $$ = $1; }
 	|	insert_statement { $$ = $1; }
 	|	delete_statement { $$ = $1; }
-	|	truncate_statement { $$ = $1; }
 	|	update_statement { $$ = $1; }
 	|	drop_statement { $$ = $1; }
-	|	execute_statement { $$ = $1; }
 	;
-
-
-/******************************
- * Hints
- ******************************/
-
-opt_hints:
-    WITH HINT '(' hint_list ')' { $$ = $4; }
-  | /* empty */ { $$ = nullptr; }
-  ;
-
-
-hint_list:
-	  hint { $$ = new std::vector<Expr*>(); $$->push_back($1); }
-	| hint_list ',' hint { $1->push_back($3); $$ = $1; }
-	;
-
-hint:
-		IDENTIFIER {
-			$$ = Expr::make(kExprHint);
-			$$->name = $1;
-		}
-	| IDENTIFIER '(' literal_list ')' {
-			$$ = Expr::make(kExprHint);
-			$$->name = $1;
-			$$->exprList = $3;
-		}
-	;
-
-
-/******************************
- * Prepared Statement
- ******************************/
-prepare_statement:
-		PREPARE IDENTIFIER FROM prepare_target_query {
-			$$ = new PrepareStatement();
-			$$->name = $2;
-			$$->query = $4;
-		}
-	;
-
-prepare_target_query: STRING
-
-execute_statement:
-		EXECUTE IDENTIFIER {
-			$$ = new ExecuteStatement();
-			$$->name = $2;
-		}
-	|	EXECUTE IDENTIFIER '(' literal_list ')' {
-			$$ = new ExecuteStatement();
-			$$->name = $2;
-			$$->parameters = $4;
-		}
-	;
-
-
-/******************************
- * Import Statement
- ******************************/
-import_statement:
-		IMPORT FROM import_file_type FILE file_path INTO table_name {
-			$$ = new ImportStatement((ImportType) $3);
-			$$->filePath = $5;
-			$$->schema = $7.schema;
-			$$->tableName = $7.name;
-		}
-	;
-
-import_file_type:
-		CSV { $$ = kImportCSV; }
-	;
-
-file_path:
-		string_literal { $$ = strdup($1->name); delete $1; }
-	;
-
-
-/******************************
- * Show Statement
- * SHOW TABLES;
- ******************************/
-
-show_statement:
-		SHOW TABLES {
-			$$ = new ShowStatement(kShowTables);
-		}
-	|	SHOW COLUMNS table_name {
-			$$ = new ShowStatement(kShowColumns);
-			$$->schema = $3.schema;
-			$$->name = $3.name;
-		}
-	;
-
 
 /******************************
  * Create Statement
  * CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)
- * CREATE TABLE students FROM TBL FILE 'test/students.tbl'
+ * TODO: CREATE INDEX; CREATE TRIGGER
  ******************************/
 create_statement:
-		CREATE TABLE opt_not_exists table_name FROM TBL FILE file_path {
-			$$ = new CreateStatement(kCreateTableFromTbl);
-			$$->ifNotExists = $3;
-			$$->schema = $4.schema;
-			$$->tableName = $4.name;
-			$$->filePath = $8;
-		}
-	|	CREATE TABLE opt_not_exists table_name '(' column_def_commalist ')' {
+		CREATE opt_virtual opt_temporary TABLE opt_not_exists table_name '(' column_def_commalist ')' {
 			$$ = new CreateStatement(kCreateTable);
-			$$->ifNotExists = $3;
-			$$->schema = $4.schema;
-			$$->tableName = $4.name;
-			$$->columns = $6;
+			$$->isVirtual = $2;
+			$$->isTemporary = $3;
+			$$->ifNotExists = $5;
+			$$->schema = $6.schema;
+			$$->tableName = $6.name;
+			$$->columns = $8;
 		}
 	|	CREATE VIEW opt_not_exists table_name opt_column_list AS select_statement {
 			$$ = new CreateStatement(kCreateView);
@@ -422,6 +297,17 @@ opt_not_exists:
 	|	/* empty */ { $$ = false; }
 	;
 
+opt_virtual:
+		VIRTUAL { $$ = true; }
+	|	/* empty */ { $$ = false; }
+	;
+
+opt_temporary:
+		TEMP { $$ = true; }
+	|	TEMPORARY { $$ = true; }
+	|	/* empty */ { $$ = false; }
+	;
+
 column_def_commalist:
 		column_def { $$ = new std::vector<ColumnDefinition*>(); $$->push_back($1); }
 	|	column_def_commalist ',' column_def { $1->push_back($3); $$ = $1; }
@@ -435,35 +321,33 @@ column_def:
 
 
 column_type:
-		INT { $$ = ColumnDefinition::INT; }
-	|	INTEGER { $$ = ColumnDefinition::INT; }
-	|	DOUBLE { $$ = ColumnDefinition::DOUBLE; }
+		INT { $$ = ColumnDefinition::INTEGER; }
+	|	INTEGER { $$ = ColumnDefinition::INTEGER; }
+	|	LONG { $$ = ColumnDefinition::INTEGER; }
+	|	BOOLEAN { $$ = ColumnDefinition::INTEGER; }
 	|	TEXT { $$ = ColumnDefinition::TEXT; }
+	|	BLOB { $$ = ColumnDefinition::TEXT; }
+	|	REAL { $$ = ColumnDefinition::REAL; }
+	|	DOUBLE { $$ = ColumnDefinition::REAL; }
+	|	FLOAT { $$ = ColumnDefinition::REAL; }
 	;
 
 /******************************
  * Drop Statement
  * DROP TABLE students;
- * DEALLOCATE PREPARE stmt;
  ******************************/
 
 drop_statement:
 		DROP TABLE opt_exists table_name {
 			$$ = new DropStatement(kDropTable);
 			$$->ifExists = $3;
-			$$->schema = $4.schema;
-			$$->name = $4.name;
+			$$->schema = $4.schema; $$->name = $4.name;
 		}
 	|	DROP VIEW opt_exists table_name {
 			$$ = new DropStatement(kDropView);
 			$$->ifExists = $3;
 			$$->schema = $4.schema;
 			$$->name = $4.name;
-		}
-	|	DEALLOCATE PREPARE IDENTIFIER {
-			$$ = new DropStatement(kDropPreparedStatement);
-			$$->ifExists = false;
-			$$->name = $3;
 		}
 	;
 
@@ -473,9 +357,9 @@ opt_exists:
 	;
     
 /******************************
- * Delete Statement / Truncate statement
+ * Delete Statement
  * DELETE FROM students WHERE grade > 3.0
- * DELETE FROM students <=> TRUNCATE students
+ * DELETE FROM students 
  ******************************/
 delete_statement:
 		DELETE FROM table_name opt_where {
@@ -483,14 +367,6 @@ delete_statement:
 			$$->schema = $3.schema;
 			$$->tableName = $3.name;
 			$$->expr = $4;
-		}
-	;
-
-truncate_statement:
-		TRUNCATE table_name {
-			$$ = new DeleteStatement();
-			$$->schema = $2.schema;
-			$$->tableName = $2.name;
 		}
 	;
 
@@ -625,15 +501,17 @@ opt_all:
 	|	/* empty */
 	;
 
+
+
 select_clause:
-		SELECT opt_top opt_distinct select_list from_clause opt_where opt_group {
+		SELECT opt_distinct select_list from_clause opt_where opt_group {
 			$$ = new SelectStatement();
-			$$->limit = $2;
-			$$->selectDistinct = $3;
-			$$->selectList = $4;
-			$$->fromTable = $5;
-			$$->whereClause = $6;
-			$$->groupBy = $7;
+			//$$->limit = $2;
+			$$->selectDistinct = $2;
+			$$->selectList = $3;
+			$$->fromTable = $4;
+			$$->whereClause = $5;
+			$$->groupBy = $6;
 		}
 	;
 
@@ -689,12 +567,7 @@ opt_order_type:
 	|	/* empty */ { $$ = kOrderAsc; }
 	;
 
-// TODO: TOP and LIMIT can take more than just int literals.
-
-opt_top:
-		TOP int_literal { $$ = new LimitDescription($2->ival, kNoOffset); delete $2; }
-	|	/* empty */ { $$ = nullptr; }
-	;
+// TODO: LIMIT can take more than just int literals.
 
 opt_limit:
 		LIMIT int_literal { $$ = new LimitDescription($2->ival, kNoOffset); delete $2; }
@@ -732,13 +605,11 @@ expr:
 
 operand:
 		'(' expr ')' { $$ = $2; }
-	|	array_index
 	|	scalar_expr
 	|	unary_expr
 	|	binary_expr
 	|	case_expr
 	|	function_expr
-	|	array_expr
 	|	'(' select_no_paren ')' { $$ = Expr::makeSelect($2); }
 	;
 
@@ -805,14 +676,6 @@ comp_expr:
 function_expr:
 		IDENTIFIER '(' ')' { $$ = Expr::makeFunctionRef($1, new std::vector<Expr*>(), false); }
 	|	IDENTIFIER '(' opt_distinct expr_list ')' { $$ = Expr::makeFunctionRef($1, $4, $3); }
-	;
-
-array_expr:
-	  	ARRAY '[' expr_list ']' { $$ = Expr::makeArray($3); }
-	;
-
-array_index:
-	   	operand '[' int_literal ']' { $$ = Expr::makeArrayIndex($1, $3->ival); }
 	;
 
 between_expr:

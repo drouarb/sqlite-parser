@@ -3,10 +3,10 @@
 #include <string>
 
 // include the sql parser
-#include "SQLParser.h"
+#include "src/SQLParser.h"
 
 // contains printing utilities
-#include "util/sqlhelper.h"
+#include "src/util/sqlhelper.h"
 
 int main(int argc, char* argv[]) {
   if (argc <= 1) {

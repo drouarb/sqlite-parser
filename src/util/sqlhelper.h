@@ -1,7 +1,7 @@
 #ifndef __SQLPARSER__SQLHELPER_H__
 #define __SQLPARSER__SQLHELPER_H__
 
-#include "../sql/statements.h"
+#include "src/sql/statements.h"
 
 namespace hsql {
 
@@ -10,9 +10,6 @@ namespace hsql {
 
   // Prints a summary of the given SelectStatement with the given indentation.
   void printSelectStatementInfo(const SelectStatement* stmt, uintmax_t num_indent);
-
-  // Prints a summary of the given ImportStatement with the given indentation.
-  void printImportStatementInfo(const ImportStatement* stmt, uintmax_t num_indent);
 
   // Prints a summary of the given InsertStatement with the given indentation.
   void printInsertStatementInfo(const InsertStatement* stmt, uintmax_t num_indent);

@@ -1,15 +1,11 @@
 #ifndef __SQLPARSER__STATEMENTS_H__
 #define __SQLPARSER__STATEMENTS_H__
 
-#include "SelectStatement.h"
-#include "ImportStatement.h"
-#include "CreateStatement.h"
-#include "InsertStatement.h"
-#include "UpdateStatement.h"
-#include "DeleteStatement.h"
-#include "DropStatement.h"
-#include "PrepareStatement.h"
-#include "ExecuteStatement.h"
-#include "ShowStatement.h"
+#include "src/sql/SelectStatement.h"
+#include "src/sql/CreateStatement.h"
+#include "src/sql/InsertStatement.h"
+#include "src/sql/UpdateStatement.h"
+#include "src/sql/DeleteStatement.h"
+#include "src/sql/DropStatement.h"
 
 #endif // __SQLPARSER__STATEMENTS_H__

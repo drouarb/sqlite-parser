@@ -182,14 +182,6 @@ namespace hsql {
     }
   }
 
-
-
-  void printImportStatementInfo(const ImportStatement* stmt, uintmax_t numIndent) {
-    inprint("ImportStatment", numIndent);
-    inprint(stmt->filePath, numIndent + 1);
-    inprint(stmt->tableName, numIndent + 1);
-  }
-
   void printCreateStatementInfo(const CreateStatement* stmt, uintmax_t numIndent) {
     inprint("CreateStatment", numIndent);
     inprint(stmt->tableName, numIndent + 1);
@@ -228,9 +220,6 @@ namespace hsql {
       break;
     case kStmtCreate:
       printCreateStatementInfo((const CreateStatement*) stmt, 0);
-      break;
-    case kStmtImport:
-      printImportStatementInfo((const ImportStatement*) stmt, 0);
       break;
     default:
       break;

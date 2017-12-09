@@ -1,8 +1,8 @@
 
-#include "Expr.h"
+#include "src/sql/Expr.h"
 #include <stdio.h>
 #include <string.h>
-#include "SelectStatement.h"
+#include "src/sql/SelectStatement.h"
 
 namespace hsql {
 

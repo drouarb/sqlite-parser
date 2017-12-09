@@ -1,8 +1,8 @@
 #ifndef __SQLPARSER__INSERT_STATEMENT_H__
 #define __SQLPARSER__INSERT_STATEMENT_H__
 
-#include "SQLStatement.h"
-#include "SelectStatement.h"
+#include "src/sql/SQLStatement.h"
+#include "src/sql/SelectStatement.h"
 
 namespace hsql {
   enum InsertType {

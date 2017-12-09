@@ -1,5 +1,5 @@
 
-#include "SQLStatement.h"
+#include "src/sql/SQLStatement.h"
 
 namespace hsql {
 

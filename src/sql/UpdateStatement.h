@@ -1,7 +1,7 @@
 #ifndef __SQLPARSER__UPDATE_STATEMENT_H__
 #define __SQLPARSER__UPDATE_STATEMENT_H__
 
-#include "SQLStatement.h"
+#include "src/sql/SQLStatement.h"
 
 namespace hsql {
 

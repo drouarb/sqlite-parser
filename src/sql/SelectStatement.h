@@ -1,9 +1,9 @@
 #ifndef __SQLPARSER__SELECT_STATEMENT_H__
 #define __SQLPARSER__SELECT_STATEMENT_H__
 
-#include "SQLStatement.h"
-#include "Expr.h"
-#include "Table.h"
+#include "src/sql/SQLStatement.h"
+#include "src/sql/Expr.h"
+#include "src/sql/Table.h"
 
 namespace hsql {
   enum OrderType {
