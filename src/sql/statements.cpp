@@ -4,12 +4,49 @@
 namespace hsql {
 
   // ColumnDefinition
-  ColumnDefinition::ColumnDefinition(char* name, DataType type) :
+  ColumnDefinition::ColumnDefinition(char* name, DataType type, std::vector<hsql::ColumnConstraint*>* constraints) :
     name(name),
-    type(type) {};
+    type(type),
+    isPrimaryKey(false),
+    isUnique(false),
+    nullable(true),
+    defaultVal(nullptr) {
+      for (ColumnConstraint* c : *constraints) {
+        switch (c->type) {
+          case ColumnConstraint::PRIMARYKEY:
+            isPrimaryKey = true;
+            isUnique = true;
+            nullable = false;
+            break;
+          case ColumnConstraint::NOTNULL:
+            nullable = false;
+            break;
+          case ColumnConstraint::UNIQUE:
+            isUnique = true;
+            break;
+          case ColumnConstraint::DEFAULT:
+            defaultVal = c->expr;
+            break;
+        }
+        //delete c;
+      }
+  };
 
   ColumnDefinition::~ColumnDefinition() {
     free(name);
+    delete defaultVal;
+  }
+
+  // ColumnConstraint
+  ColumnConstraint::ColumnConstraint(ConstraintType type) :
+    type(type) {};
+
+  ColumnConstraint::ColumnConstraint(ConstraintType type, Expr *expr) :
+    type(type),
+    expr(expr) {};
+
+  ColumnConstraint::~ColumnConstraint() {
+    delete expr;
   }
 
   // CreateStatemnet

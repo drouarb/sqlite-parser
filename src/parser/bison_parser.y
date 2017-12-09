@@ -108,6 +108,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::OrderType order_type;
 	hsql::LimitDescription* limit;
 	hsql::ColumnDefinition* column_t;
+	hsql::ColumnConstraint* cconstraint_t;
 	hsql::GroupByDescription* group_t;
 	hsql::UpdateClause* update_t;
 
@@ -116,6 +117,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	std::vector<char*>* str_vec;
 	std::vector<hsql::TableRef*>* table_vec;
 	std::vector<hsql::ColumnDefinition*>* column_vec;
+	std::vector<hsql::ColumnConstraint*>* cconstraint_vec;
 	std::vector<hsql::UpdateClause*>* update_vec;
 	std::vector<hsql::Expr*>* expr_vec;
 	std::vector<hsql::OrderDescription*>* order_vec;
@@ -192,6 +194,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <order>		order_desc
 %type <order_type>	opt_order_type
 %type <column_t>	column_def
+%type <cconstraint_t>	column_constraint
 %type <update_t>	update_clause
 %type <group_t>		opt_group
 
@@ -201,6 +204,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <order_vec>	opt_order order_list
 %type <update_vec>	update_clause_commalist
 %type <column_vec>	column_def_commalist
+%type <cconstraint_vec>	column_constraint_list column_constraint_list_nullable
 
 /******************************
  ** Token Precedence and Associativity
@@ -314,10 +318,28 @@ column_def_commalist:
 	;
 
 column_def:
-		IDENTIFIER column_type {
-			$$ = new ColumnDefinition($1, (ColumnDefinition::DataType) $2);
+		IDENTIFIER column_type column_constraint_list_nullable {
+			$$ = new ColumnDefinition($1, (ColumnDefinition::DataType) $2, $3);
 		}
 	;
+
+column_constraint_list_nullable:
+		column_constraint_list  { $$ = $1; }
+	|	/* empty */ { $$ = new std::vector <ColumnConstraint*>(); }
+	;
+
+column_constraint_list:
+		column_constraint  { $$ = new std::vector<ColumnConstraint*>(); $$->push_back($1); }
+	|	column_constraint_list column_constraint { $1->push_back($2); $$ = $1; }
+	;
+
+column_constraint:
+		PRIMARY KEY { $$ = new ColumnConstraint(ColumnConstraint::PRIMARYKEY); }
+	|	NOT NULL { $$ = new ColumnConstraint(ColumnConstraint::NOTNULL); }
+	|	NOTNULL { $$ = new ColumnConstraint(ColumnConstraint::NOTNULL); }
+	|	UNIQUE { $$ = new ColumnConstraint(ColumnConstraint::UNIQUE); }
+	|	DEFAULT expr { $$ = new ColumnConstraint(ColumnConstraint::DEFAULT, $2); }
+	; // TODO: foreign key; autoincrease
 
 
 column_type:

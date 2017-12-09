@@ -7,6 +7,23 @@
 namespace hsql {
   struct SelectStatement;
 
+  // Represents definition of a column constraint
+  struct ColumnConstraint {
+    enum ConstraintType {
+      PRIMARYKEY,
+      NOTNULL,
+      UNIQUE,
+      DEFAULT
+    };
+
+    ColumnConstraint(ConstraintType type);
+    ColumnConstraint(ConstraintType type, Expr *expr);
+    virtual ~ColumnConstraint();
+
+    ConstraintType type;
+    Expr *expr;
+  };
+
   // Represents definition of a table column
   struct ColumnDefinition {
     enum DataType {
@@ -17,11 +34,16 @@ namespace hsql {
       BLOB
     };
 
-    ColumnDefinition(char* name, DataType type);
+    ColumnDefinition(char* name, DataType type, std::vector<hsql::ColumnConstraint*>* constraints);
     virtual ~ColumnDefinition();
 
     char* name;
     DataType type;
+
+    bool isPrimaryKey;
+    bool isUnique;
+    bool nullable;
+    Expr* defaultVal;
   };
 
   enum CreateType {
