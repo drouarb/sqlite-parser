@@ -54,7 +54,6 @@ namespace hsql {
     SQLStatement(kStmtCreate),
     type(type),
     ifNotExists(false),
-    filePath(nullptr),
     schema(nullptr),
     tableName(nullptr),
     columns(nullptr),
@@ -62,7 +61,6 @@ namespace hsql {
     select(nullptr) {};
 
   CreateStatement::~CreateStatement() {
-    free(filePath);
     free(schema);
     free(tableName);
     delete select;

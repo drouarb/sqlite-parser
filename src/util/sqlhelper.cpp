@@ -185,7 +185,6 @@ namespace hsql {
   void printCreateStatementInfo(const CreateStatement* stmt, uintmax_t numIndent) {
     inprint("CreateStatment", numIndent);
     inprint(stmt->tableName, numIndent + 1);
-    inprint(stmt->filePath, numIndent + 1);
   }
 
   void printInsertStatementInfo(const InsertStatement* stmt, uintmax_t numIndent) {

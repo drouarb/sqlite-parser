@@ -63,7 +63,6 @@ namespace hsql {
     bool isVirtual;   // default: false
     bool isTemporary; // default: false
     bool ifNotExists; // default: false
-    char* filePath;   // default: nullptr
     char* schema;     // default: nullptr
     char* tableName;  // default: nullptr
     std::vector<ColumnDefinition*>* columns; // default: nullptr
