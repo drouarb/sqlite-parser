@@ -185,6 +185,50 @@ namespace hsql {
   void printCreateStatementInfo(const CreateStatement* stmt, uintmax_t numIndent) {
     inprint("CreateStatment", numIndent);
     inprint(stmt->tableName, numIndent + 1);
+    if (stmt->isVirtual)
+        inprint("Virtual Table", numIndent);
+    if (stmt->isTemporary)
+        inprint("Temporary Table", numIndent);
+    if (stmt->ifNotExists)
+        inprint("Create if not exists", numIndent);
+    if (stmt->schema != nullptr) {
+        inprint("Schema", numIndent);
+        inprint(stmt->schema, numIndent + 1);
+    }
+    if (stmt->columns != nullptr) {
+      inprint("Columns", numIndent + 1);
+      for (ColumnDefinition* col : *stmt->columns) {
+        inprint(col->name, numIndent + 2);
+        switch (col->type) {
+            case ColumnDefinition::TEXT:
+                inprint("Type: TEXT", numIndent + 3);
+                break;
+            case ColumnDefinition::INTEGER:
+                inprint("Type: INTEGER", numIndent + 3);
+                break;
+            case ColumnDefinition::REAL:
+                inprint("Type: REAL", numIndent + 3);
+                break;
+            case ColumnDefinition::BLOB:
+                inprint("Type: BLOB", numIndent + 3);
+                break;
+            default:
+                inprint("Type: UNKNOWN", numIndent + 3);
+                break;
+
+        }
+        if (col->isPrimaryKey)
+            inprint("Primary Key", numIndent + 3);
+        if (col->isUnique)
+            inprint("Unique", numIndent + 3);
+        if (col->nullable)
+            inprint("Nullable", numIndent + 3);
+        if (col->defaultVal != nullptr) {
+            inprint("Default Value", numIndent + 3);
+            printExpression(col->defaultVal, numIndent + 4);
+        }
+      }
+    }
   }
 
   void printInsertStatementInfo(const InsertStatement* stmt, uintmax_t numIndent) {
