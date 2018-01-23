@@ -45,6 +45,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 		yylloc->first_column = yylloc->last_column; \
 		for(int i = 0; yytext[i] != '\0'; i++) { \
 			yylloc->total_column++; \
+			yylloc->string_length++; \
 				if(yytext[i] == '\n') { \
 						yylloc->last_line++; \
 						yylloc->last_column = 0; \
@@ -72,6 +73,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	@$.first_line = 0;
 	@$.last_line = 0;
 	@$.total_column = 0;
+	@$.string_length = 0;
 };
 
 
@@ -127,7 +129,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 /*********************************
  ** Descrutor symbols
  *********************************/
-%destructor { } <fval> <ival> <uval> <bval> <order_type> 
+%destructor { } <fval> <ival> <uval> <bval> <order_type>
 %destructor { free( ($$.name) ); free( ($$.schema) ); } <table_name>
 %destructor { free( ($$) ); } <sval>
 %destructor {
@@ -188,9 +190,9 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
 %type <expr>		function_expr between_expr expr_alias param_expr
 %type <expr> 		column_name literal int_literal num_literal string_literal
-%type <expr> 		comp_expr opt_where join_condition opt_having case_expr in_expr
-%type <expr> 		null_literal
-%type <limit>		opt_limit
+%type <expr> 		comp_expr opt_where join_condition opt_having case_expr case_list in_expr hint
+%type <expr> 		array_expr array_index null_literal
+%type <limit>		opt_limit opt_top
 %type <order>		order_desc
 %type <order_type>	opt_order_type
 %type <column_t>	column_def
@@ -258,8 +260,18 @@ input:
 
 
 statement_list:
-		statement { $$ = new std::vector<SQLStatement*>(); $$->push_back($1); }
-	|	statement_list ';' statement { $1->push_back($3); $$ = $1; }
+		statement {
+			$1->stringLength = yylloc.string_length;
+			yylloc.string_length = 0;
+			$$ = new std::vector<SQLStatement*>();
+			$$->push_back($1);
+		}
+	|	statement_list ';' statement {
+			$3->stringLength = yylloc.string_length;
+			yylloc.string_length = 0;
+			$1->push_back($3);
+			$$ = $1;
+		}
 	;
 
 statement:
@@ -377,7 +389,7 @@ opt_exists:
 		IF EXISTS   { $$ = true; }
 	|	/* empty */ { $$ = false; }
 	;
-    
+
 /******************************
  * Delete Statement
  * DELETE FROM students WHERE grade > 3.0
@@ -674,11 +686,18 @@ in_expr:
 	|	operand NOT IN '(' select_no_paren ')'	{ $$ = Expr::makeOpUnary(kOpNot, Expr::makeInOperator($1, $5)); }
 	;
 
-// TODO: allow no else specified
+// CASE grammar based on: flex & bison by John Levine
+// https://www.safaribooksonline.com/library/view/flex-bison/9780596805418/ch04.html#id352665
 case_expr:
-		CASE WHEN expr THEN operand END { $$ = Expr::makeCase($3, $5); }
-	|
-		CASE WHEN expr THEN operand ELSE operand END { $$ = Expr::makeCase($3, $5, $7); }
+		CASE expr case_list END         	{ $$ = Expr::makeCase($2, $3, nullptr); }
+	|	CASE expr case_list ELSE expr END	{ $$ = Expr::makeCase($2, $3, $5); }
+	|	CASE case_list END			        { $$ = Expr::makeCase(nullptr, $2, nullptr); }
+	|	CASE case_list ELSE expr END		{ $$ = Expr::makeCase(nullptr, $2, $4); }
+	;
+
+case_list:
+		WHEN expr THEN expr              { $$ = Expr::makeCaseList(Expr::makeCaseListElement($2, $4)); }
+	|	case_list WHEN expr THEN expr    { $$ = Expr::caseListAppend($1, Expr::makeCaseListElement($3, $5)); }
 	;
 
 exists_expr:
@@ -750,10 +769,10 @@ param_expr:
  ******************************/
 table_ref:
 		table_ref_atomic
-	|	table_ref_atomic ',' table_ref_commalist {
-			$3->push_back($1);
+	|	table_ref_commalist ',' table_ref_atomic {
+			$1->push_back($3);
 			auto tbl = new TableRef(kTableCrossProduct);
-			tbl->list = $3;
+			tbl->list = $1;
 			$$ = tbl;
 		}
 	;
@@ -859,11 +878,13 @@ join_clause:
 
 opt_join_type:
 		INNER		{ $$ = kJoinInner; }
-	|	OUTER		{ $$ = kJoinOuter; }
-	|	LEFT OUTER	{ $$ = kJoinLeftOuter; }
-	|	RIGHT OUTER	{ $$ = kJoinRightOuter; }
+	|	LEFT OUTER	{ $$ = kJoinLeft; }
 	|	LEFT		{ $$ = kJoinLeft; }
+	|	RIGHT OUTER	{ $$ = kJoinRight; }
 	|	RIGHT		{ $$ = kJoinRight; }
+	|	FULL OUTER	{ $$ = kJoinFull; }
+	|	OUTER		{ $$ = kJoinFull; }
+	|	FULL		{ $$ = kJoinFull; }
 	|	CROSS		{ $$ = kJoinCross; }
 	|	/* empty, default */	{ $$ = kJoinInner; }
 	;
