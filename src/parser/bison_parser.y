@@ -592,7 +592,8 @@ order_list:
 	;
 
 order_desc:
-		expr opt_order_type { $$ = new OrderDescription($2, $1); }
+		expr COLLATE expr opt_order_type { $$ = new OrderDescription($4, $1, $3); }
+	|	expr opt_order_type { $$ = new OrderDescription($2, $1); }
 	;
 
 opt_order_type:

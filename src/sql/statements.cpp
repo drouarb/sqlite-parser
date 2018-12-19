@@ -140,7 +140,14 @@ namespace hsql {
   // OrderDescription
   OrderDescription::OrderDescription(OrderType type, Expr* expr) :
     type(type),
-    expr(expr) {}
+    expr(expr),
+    collation(nullptr) {}
+
+  OrderDescription::OrderDescription(OrderType type, Expr* expr, Expr *collation) :
+    type(type),
+    expr(expr),
+    collation(collation) {}
+
 
   OrderDescription::~OrderDescription() {
     delete expr;
