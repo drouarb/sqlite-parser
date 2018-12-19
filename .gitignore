@@ -57,3 +57,8 @@ cmake-build-debug/
 
 # Build artifacts
 /bazel-*
+
+src/parser/bison_parser.cpp
+src/parser/bison_parser.h
+src/parser/flex_lexer.cpp
+src/parser/flex_lexer.h
