@@ -205,7 +205,7 @@ TO                TOKEN(TO)
 	return SQL_INTVAL;
 }
 
-\"[^\"\n]+\" {
+[\"'`][^\"\n]+[\"'`] {
 	// Crop the leading and trailing quote char
 	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
 	return SQL_IDENTIFIER;
