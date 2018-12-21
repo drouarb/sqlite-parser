@@ -15,12 +15,12 @@ namespace hsql {
   // Description of the order by clause within a select statement.
   struct OrderDescription {
     OrderDescription(OrderType type, Expr* expr);
-    OrderDescription(OrderType type, Expr* expr, Expr* collation);
+    OrderDescription(OrderType type, Expr* expr, char* collation);
     virtual ~OrderDescription();
 
     OrderType type;
     Expr* expr;
-    Expr* collation;
+    char* collation;
   };
 
   const int64_t kNoLimit = -1;

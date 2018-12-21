@@ -143,7 +143,7 @@ namespace hsql {
     expr(expr),
     collation(nullptr) {}
 
-  OrderDescription::OrderDescription(OrderType type, Expr* expr, Expr *collation) :
+  OrderDescription::OrderDescription(OrderType type, Expr* expr, char* collation) :
     type(type),
     expr(expr),
     collation(collation) {}
