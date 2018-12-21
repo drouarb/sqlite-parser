@@ -727,6 +727,7 @@ between_expr:
 column_name:
 		IDENTIFIER { $$ = Expr::makeColumnRef($1); }
 	|	IDENTIFIER '.' IDENTIFIER { $$ = Expr::makeColumnRef($1, $3); }
+	|	IDENTIFIER '.' TEXT { $$ = Expr::makeColumnRef($1, strdup("text")); }
 	|	'*' { $$ = Expr::makeStar(); }
 	|	IDENTIFIER '.' '*' { $$ = Expr::makeStar($1); }
 	;
