@@ -763,6 +763,7 @@ param_expr:
 			$$->ival2 = yyloc.param_list.size();
 			yyloc.param_list.push_back($$);
 		}
+	|	':' IDENTIFIER { $$ = Expr::makeNamedParameter($2); }
 	;
 
 

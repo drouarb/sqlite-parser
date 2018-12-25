@@ -175,7 +175,13 @@ namespace hsql {
     return e;
   }
 
-  Expr* Expr::makeSelect(SelectStatement* select) {
+  Expr* Expr::makeNamedParameter(char *name) {
+    Expr* e = new Expr(kExprNamedParameter);
+    e->name = name;
+    return e;
+  }
+
+    Expr* Expr::makeSelect(SelectStatement* select) {
     Expr* e = new Expr(kExprSelect);
     e->select = select;
     return e;

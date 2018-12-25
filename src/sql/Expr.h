@@ -27,7 +27,8 @@ namespace hsql {
     kExprArray,
     kExprArrayIndex,
     kExprCaseList,
-    kExprCaseListElement
+    kExprCaseListElement,
+    kExprNamedParameter
   };
 
 // Operator types. These are important for expressions of type kExprOperator.
@@ -151,6 +152,8 @@ namespace hsql {
     static Expr* makeArrayIndex(Expr* expr, int64_t index);
 
     static Expr* makeParameter(int id);
+
+    static Expr* makeNamedParameter(char *name);
 
     static Expr* makeSelect(SelectStatement* select);
 
