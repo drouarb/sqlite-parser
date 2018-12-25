@@ -49,4 +49,4 @@ set(sqliteparser_SRCS
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_library(sqliteparser ${sqliteparser_SRCS})
+add_library(sqliteparser SHARED ${sqliteparser_SRCS})
