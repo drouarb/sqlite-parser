@@ -728,6 +728,7 @@ column_name:
 		IDENTIFIER { $$ = Expr::makeColumnRef($1); }
 	|	IDENTIFIER '.' IDENTIFIER { $$ = Expr::makeColumnRef($1, $3); }
 	|	IDENTIFIER '.' TEXT { $$ = Expr::makeColumnRef($1, strdup("text")); }
+	|	IDENTIFIER '.' RECURSIVE { $$ = Expr::makeColumnRef($1, strdup("recursive")); }
 	|	'*' { $$ = Expr::makeStar(); }
 	|	IDENTIFIER '.' '*' { $$ = Expr::makeStar($1); }
 	;
