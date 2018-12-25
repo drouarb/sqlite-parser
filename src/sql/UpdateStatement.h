@@ -2,6 +2,7 @@
 #define __SQLPARSER__UPDATE_STATEMENT_H__
 
 #include "src/sql/SQLStatement.h"
+#include "src/sql/Table.h"
 
 namespace hsql {
 
