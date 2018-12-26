@@ -605,8 +605,8 @@ opt_order_type:
 // TODO: LIMIT can take more than just int literals.
 
 opt_limit:
-		LIMIT int_literal { $$ = new LimitDescription($2->ival, kNoOffset); delete $2; }
-	|	LIMIT int_literal OFFSET int_literal { $$ = new LimitDescription($2->ival, $4->ival); delete $2; delete $4; }
+		LIMIT expr { $$ = new LimitDescription($2, nullptr); }
+	|	LIMIT expr OFFSET expr { $$ = new LimitDescription($2, $4); }
 	|	/* empty */ { $$ = nullptr; }
 	;
 

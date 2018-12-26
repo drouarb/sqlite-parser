@@ -23,15 +23,13 @@ namespace hsql {
     char* collation;
   };
 
-  const int64_t kNoLimit = -1;
-  const int64_t kNoOffset = -1;
-
   // Description of the limit clause within a select statement.
   struct LimitDescription {
-    LimitDescription(int64_t limit, int64_t offset);
+    LimitDescription(Expr *limit, Expr *offset);
+    virtual ~LimitDescription();
 
-    int64_t limit;
-    int64_t offset;
+    Expr *limit;
+    Expr *offset;
   };
 
   // Description of the group-by clause within a select statement.
