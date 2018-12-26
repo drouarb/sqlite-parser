@@ -410,7 +410,7 @@ delete_statement:
  * INSERT INTO employees SELECT * FROM stundents
  ******************************/
 insert_statement:
-		INSERT opt_or_replace INTO table_name opt_column_list VALUES '(' literal_list ')' {
+		INSERT opt_or_replace INTO table_name opt_column_list VALUES '(' expr_list ')' {
 			$$ = new InsertStatement(kInsertValues);
 			$$->orReplace = $2;
 			$$->schema = $4.schema;
