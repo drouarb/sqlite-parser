@@ -190,9 +190,9 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
 %type <expr>		function_expr between_expr expr_alias param_expr
 %type <expr> 		column_name literal int_literal num_literal string_literal
-%type <expr> 		comp_expr opt_where join_condition opt_having case_expr case_list in_expr hint
-%type <expr> 		array_expr array_index null_literal
-%type <limit>		opt_limit opt_top
+%type <expr> 		comp_expr opt_where join_condition opt_having case_expr case_list in_expr
+%type <expr> 		null_literal
+%type <limit>		opt_limit
 %type <order>		order_desc
 %type <order_type>	opt_order_type
 %type <column_t>	column_def
@@ -201,7 +201,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <group_t>		opt_group
 
 %type <str_vec>		ident_commalist opt_column_list
-%type <expr_vec> 	expr_list select_list literal_list
+%type <expr_vec> 	expr_list select_list
 %type <table_vec> 	table_ref_commalist
 %type <order_vec>	opt_order order_list
 %type <update_vec>	update_clause_commalist
@@ -622,11 +622,6 @@ opt_limit:
 expr_list:
 		expr_alias { $$ = new std::vector<Expr*>(); $$->push_back($1); }
 	|	expr_list ',' expr_alias { $1->push_back($3); $$ = $1; }
-	;
-
-literal_list:
-		literal { $$ = new std::vector<Expr*>(); $$->push_back($1); }
-	|	literal_list ',' literal { $1->push_back($3); $$ = $1; }
 	;
 
 expr_alias:
