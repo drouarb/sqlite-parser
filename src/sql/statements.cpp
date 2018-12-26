@@ -151,6 +151,7 @@ namespace hsql {
 
   OrderDescription::~OrderDescription() {
     delete expr;
+    delete collation;
   }
 
   // LimitDescription
