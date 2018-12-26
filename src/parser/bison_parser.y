@@ -685,6 +685,8 @@ in_expr:
 	|	operand NOT IN '(' expr_list ')'		{ $$ = Expr::makeOpUnary(kOpNot, Expr::makeInOperator($1, $5)); }
 	|	operand IN '(' select_no_paren ')'		{ $$ = Expr::makeInOperator($1, $4); }
 	|	operand NOT IN '(' select_no_paren ')'	{ $$ = Expr::makeOpUnary(kOpNot, Expr::makeInOperator($1, $5)); }
+	|   operand IN '(' ')'                      { $$ = Expr::makeInOperator($1); }
+	|   operand NOT IN '(' ')'                  { $$ = Expr::makeOpUnary(kOpNot, Expr::makeInOperator($1)); }
 	;
 
 // CASE grammar based on: flex & bison by John Levine

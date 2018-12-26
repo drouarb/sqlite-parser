@@ -212,6 +212,14 @@ namespace hsql {
     return e;
   }
 
+  Expr* Expr::makeInOperator(Expr* expr) {
+    Expr* e = new Expr(kExprOperator);
+    e->opType = kOpIn;
+    e->expr = expr;
+
+    return e;
+  }
+
   bool Expr::isType(ExprType exprType) const {
     return exprType == type;
   }
