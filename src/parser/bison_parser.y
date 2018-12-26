@@ -919,7 +919,9 @@ opt_semicolon:
 
 ident_commalist:
 		IDENTIFIER { $$ = new std::vector<char*>(); $$->push_back($1); }
+	|	RECURSIVE  { $$ = new std::vector<char*>(); $$->push_back(strdup("recursive")); }
 	|	ident_commalist ',' IDENTIFIER { $1->push_back($3); $$ = $1; }
+	|	ident_commalist ',' RECURSIVE  { $1->push_back(strdup("recursive")); $$ = $1; }
 	;
 
 %%
