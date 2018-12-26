@@ -22,6 +22,7 @@ namespace hsql {
     std::vector<char*>* columns;
     std::vector<Expr*>* values;
     SelectStatement* select;
+    bool orReplace;
   };
 
 } // namsepace hsql

@@ -183,7 +183,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <drop_stmt>	drop_statement
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias
-%type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary
+%type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
 %type <uval>		opt_join_type column_type
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
@@ -410,22 +410,28 @@ delete_statement:
  * INSERT INTO employees SELECT * FROM stundents
  ******************************/
 insert_statement:
-		INSERT INTO table_name opt_column_list VALUES '(' literal_list ')' {
+		INSERT opt_or_replace INTO table_name opt_column_list VALUES '(' literal_list ')' {
 			$$ = new InsertStatement(kInsertValues);
-			$$->schema = $3.schema;
-			$$->tableName = $3.name;
-			$$->columns = $4;
-			$$->values = $7;
+			$$->orReplace = $2;
+			$$->schema = $4.schema;
+			$$->tableName = $4.name;
+			$$->columns = $5;
+			$$->values = $8;
 		}
-	|	INSERT INTO table_name opt_column_list select_no_paren {
+	|	INSERT opt_or_replace INTO table_name opt_column_list select_no_paren {
 			$$ = new InsertStatement(kInsertSelect);
-			$$->schema = $3.schema;
-			$$->tableName = $3.name;
-			$$->columns = $4;
-			$$->select = $5;
+			$$->orReplace = $2;
+			$$->schema = $4.schema;
+			$$->tableName = $4.name;
+			$$->columns = $5;
+			$$->select = $6;
 		}
 	;
 
+opt_or_replace:
+		OR REPLACE { $$ = true; }
+	|	/* empty */ { $$ = false; }
+	;
 
 opt_column_list:
 		'(' ident_commalist ')' { $$ = $2; }
