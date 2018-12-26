@@ -735,8 +735,9 @@ between_expr:
 column_name:
 		IDENTIFIER { $$ = Expr::makeColumnRef($1); }
 	|	IDENTIFIER '.' IDENTIFIER { $$ = Expr::makeColumnRef($1, $3); }
-	|	IDENTIFIER '.' TEXT { $$ = Expr::makeColumnRef($1, strdup("text")); }
-	|	IDENTIFIER '.' RECURSIVE { $$ = Expr::makeColumnRef($1, strdup("recursive")); }
+	|	IDENTIFIER '.' STRING     { $$ = Expr::makeColumnRef($1, $3); }
+	|	IDENTIFIER '.' TEXT       { $$ = Expr::makeColumnRef($1, strdup("text")); }
+	|	IDENTIFIER '.' RECURSIVE  { $$ = Expr::makeColumnRef($1, strdup("recursive")); }
 	|	'*' { $$ = Expr::makeStar(); }
 	|	IDENTIFIER '.' '*' { $$ = Expr::makeStar($1); }
 	;
@@ -839,7 +840,9 @@ table_name:
 
 alias:
 		AS IDENTIFIER { $$ = $2; }
+	|	AS STRING     { $$ = $2; }
 	|	IDENTIFIER
+	|	STRING
 	;
 
 opt_alias:
@@ -919,8 +922,10 @@ opt_semicolon:
 
 ident_commalist:
 		IDENTIFIER { $$ = new std::vector<char*>(); $$->push_back($1); }
+	|	STRING     { $$ = new std::vector<char*>(); $$->push_back($1); }
 	|	RECURSIVE  { $$ = new std::vector<char*>(); $$->push_back(strdup("recursive")); }
 	|	ident_commalist ',' IDENTIFIER { $1->push_back($3); $$ = $1; }
+	|	ident_commalist ',' STRING     { $1->push_back($3); $$ = $1; }
 	|	ident_commalist ',' RECURSIVE  { $1->push_back(strdup("recursive")); $$ = $1; }
 	;
 
