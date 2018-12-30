@@ -674,6 +674,7 @@ binary_expr:
 	|	operand NOT LIKE operand	{ $$ = Expr::makeOpBinary($1, kOpNotLike, $4); }
 	|	operand ILIKE operand		{ $$ = Expr::makeOpBinary($1, kOpILike, $3); }
 	|	operand CONCAT operand	{ $$ = Expr::makeOpBinary($1, kOpConcat, $3); }
+	|	operand MATCH operand		{ $$ = Expr::makeOpBinary($1, kOpMatch, $3); }
 	;
 
 logic_expr:
