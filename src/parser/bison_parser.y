@@ -464,6 +464,11 @@ update_clause:
 			$$->column = $1;
 			$$->value = $3;
 		}
+	|	STRING '=' expr {
+			$$ = new UpdateClause();
+			$$->column = $1;
+			$$->value = $3;
+		}
 	;
 
 /******************************
