@@ -184,7 +184,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <drop_stmt>	drop_statement
 %type <pragma_stmt> pragma_statement
 %type <table_name>  table_name
-%type <sval> 		opt_alias alias
+%type <sval> 		opt_alias alias string_or_token
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
 %type <uval>		opt_join_type column_type
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
@@ -750,10 +750,7 @@ between_expr:
 
 column_name:
 		IDENTIFIER { $$ = Expr::makeColumnRef($1); }
-	|	IDENTIFIER '.' IDENTIFIER { $$ = Expr::makeColumnRef($1, $3); }
-	|	IDENTIFIER '.' STRING     { $$ = Expr::makeColumnRef($1, $3); }
-	|	IDENTIFIER '.' TEXT       { $$ = Expr::makeColumnRef($1, strdup("text")); }
-	|	IDENTIFIER '.' RECURSIVE  { $$ = Expr::makeColumnRef($1, strdup("recursive")); }
+	|	IDENTIFIER '.' string_or_token { $$ = Expr::makeColumnRef($1, $3); }
 	|	'*' { $$ = Expr::makeStar(); }
 	|	IDENTIFIER '.' '*' { $$ = Expr::makeStar($1); }
 	;
@@ -937,12 +934,15 @@ opt_semicolon:
 
 
 ident_commalist:
-		IDENTIFIER { $$ = new std::vector<char*>(); $$->push_back($1); }
-	|	STRING     { $$ = new std::vector<char*>(); $$->push_back($1); }
-	|	RECURSIVE  { $$ = new std::vector<char*>(); $$->push_back(strdup("recursive")); }
-	|	ident_commalist ',' IDENTIFIER { $1->push_back($3); $$ = $1; }
-	|	ident_commalist ',' STRING     { $1->push_back($3); $$ = $1; }
-	|	ident_commalist ',' RECURSIVE  { $1->push_back(strdup("recursive")); $$ = $1; }
+		string_or_token { $$ = new std::vector<char*>(); $$->push_back($1); }
+	|	ident_commalist ',' string_or_token { $1->push_back($3); $$ = $1; }
+	;
+
+string_or_token:
+		IDENTIFIER  {{ $$ = $1; }}
+	|	STRING      {{ $$ = $1; }}
+	|	RECURSIVE   {{ $$ = strdup("recursive"); }}
+	|	TEXT        {{ $$ = strdup("text"); }}
 	;
 
 %%
