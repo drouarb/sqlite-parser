@@ -474,16 +474,11 @@ update_clause_commalist:
 	;
 
 update_clause:
-		IDENTIFIER '=' expr {
-			$$ = new UpdateClause();
-			$$->column = $1;
-			$$->value = $3;
-		}
-	|	STRING '=' expr {
-			$$ = new UpdateClause();
-			$$->column = $1;
-			$$->value = $3;
-		}
+	string_or_token '=' expr {
+		$$ = new UpdateClause();
+		$$->column = $1;
+		$$->value = $3;
+	}
 	;
 
 /******************************
@@ -944,6 +939,7 @@ string_or_token:
 	|	RECURSIVE   {{ $$ = strdup("recursive"); }}
 	|	TEXT        {{ $$ = strdup("text"); }}
 	|	ON          {{ $$ = strdup("ON"); }}
+	|	KEY         {{ $$ = strdup("key"); }}
 	;
 
 %%
