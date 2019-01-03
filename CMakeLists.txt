@@ -37,6 +37,7 @@ set(sqliteparser_SRCS
         src/sql/Expr.cpp
         src/sql/Expr.h
         src/sql/InsertStatement.h
+        src/sql/PragmaStatement.h
         src/sql/SelectStatement.h
         src/sql/SQLStatement.cpp
         src/sql/SQLStatement.h

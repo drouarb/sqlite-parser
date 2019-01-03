@@ -135,6 +135,15 @@ namespace hsql {
     }
   }
 
+  //Pragma Statement
+  PragmaStatement::PragmaStatement() :
+    SQLStatement(kStmtPragma),
+    expr(nullptr) {}
+
+  PragmaStatement::~PragmaStatement(){
+    delete expr;
+  }
+
   // SelectStatement.h
 
   // OrderDescription

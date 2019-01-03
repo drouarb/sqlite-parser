@@ -102,6 +102,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::DeleteStatement* 	delete_stmt;
 	hsql::UpdateStatement* 	update_stmt;
 	hsql::DropStatement*   	drop_stmt;
+	hsql::PragmaStatement*  pragma_stmt;
 	
 	hsql::TableName table_name;
 	hsql::TableRef* table;
@@ -181,6 +182,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <delete_stmt> delete_statement
 %type <update_stmt> update_statement
 %type <drop_stmt>	drop_statement
+%type <pragma_stmt> pragma_statement
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
@@ -281,7 +283,20 @@ statement:
 	|	delete_statement { $$ = $1; }
 	|	update_statement { $$ = $1; }
 	|	drop_statement { $$ = $1; }
+	|	pragma_statement { $$ = $1; }
 	;
+/******************************
+ * Create Statement
+ * PRAGMA cache_size=2000
+ * PRAGMA table_info(metadata_items)
+ ******************************/
+
+pragma_statement:
+		PRAGMA expr {
+			$$ = new PragmaStatement();
+			$$->expr = $2;
+		}
+
 
 /******************************
  * Create Statement

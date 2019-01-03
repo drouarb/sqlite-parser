@@ -4,6 +4,7 @@
 #include "src/sql/SelectStatement.h"
 #include "src/sql/CreateStatement.h"
 #include "src/sql/InsertStatement.h"
+#include "src/sql/PragmaStatement.h"
 #include "src/sql/UpdateStatement.h"
 #include "src/sql/DeleteStatement.h"
 #include "src/sql/DropStatement.h"

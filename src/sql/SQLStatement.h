@@ -14,7 +14,8 @@ namespace hsql {
     kStmtDelete,
     kStmtCreate,
     kStmtDrop,
-    kStmtAlter
+    kStmtAlter,
+    kStmtPragma,
   };
 
   // Base struct for every SQL statement
