@@ -763,7 +763,7 @@ literal:
 	;
 
 string_literal:
-		STRING { $$ = Expr::makeLiteral($1); }
+		string_or_token { $$ = Expr::makeLiteral($1); }
 	;
 
 
@@ -943,6 +943,7 @@ string_or_token:
 	|	STRING      {{ $$ = $1; }}
 	|	RECURSIVE   {{ $$ = strdup("recursive"); }}
 	|	TEXT        {{ $$ = strdup("text"); }}
+	|	ON          {{ $$ = strdup("ON"); }}
 	;
 
 %%
