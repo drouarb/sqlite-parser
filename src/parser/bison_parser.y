@@ -628,6 +628,7 @@ opt_order_type:
 opt_limit:
 		LIMIT expr { $$ = new LimitDescription($2, nullptr); }
 	|	LIMIT expr OFFSET expr { $$ = new LimitDescription($2, $4); }
+	|	LIMIT expr ',' expr { $$ = new LimitDescription($4, $2); }
 	|	/* empty */ { $$ = nullptr; }
 	;
 
