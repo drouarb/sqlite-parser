@@ -184,7 +184,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <drop_stmt>	drop_statement
 %type <pragma_stmt> pragma_statement
 %type <table_name>  table_name
-%type <sval> 		opt_alias alias string_or_token
+%type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
 %type <uval>		opt_join_type column_type
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
@@ -822,14 +822,26 @@ table_ref_commalist:
 
 
 table_ref_name:
-		table_name opt_alias {
+		table_name opt_indexed_by opt_alias {
 			auto tbl = new TableRef(kTableName);
 			tbl->schema = $1.schema;
 			tbl->name = $1.name;
-			tbl->alias = $2;
+			tbl->indexed_by = $2;
+			tbl->alias = $3;
 			$$ = tbl;
 		}
 	;
+
+
+indexed_by:
+		INDEXED BY IDENTIFIER { $$ = $3; }
+	|	INDEXED BY STRING     { $$ = $3; }
+	;
+
+
+opt_indexed_by:
+		indexed_by
+	|	/* empty */ { $$ = nullptr; }
 
 
 table_ref_name_no_alias:

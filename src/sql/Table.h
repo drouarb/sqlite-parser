@@ -33,6 +33,7 @@ namespace hsql {
 
     char* schema;
     char* name;
+    char* indexed_by;
     char* alias;
 
     SelectStatement* select;
