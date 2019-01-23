@@ -856,6 +856,7 @@ table_ref_name_no_alias:
 table_name:
 		IDENTIFIER                { $$.schema = nullptr; $$.name = $1;}
 	|	IDENTIFIER '.' IDENTIFIER { $$.schema = $1; $$.name = $3; }
+	|	TEMP '.' IDENTIFIER       { $$.schema = strdup("temp"); $$.name = $3; }
 	;
 
 
