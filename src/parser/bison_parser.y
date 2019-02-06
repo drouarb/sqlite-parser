@@ -186,7 +186,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
-%type <uval>		opt_join_type column_type
+%type <uval>		opt_join_type column_type trigger_type trigger_event
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
@@ -328,6 +328,16 @@ create_statement:
 			$$->tableName = $6.name;
 			$$->indexedColumn = $8;
 		}
+	|	CREATE TRIGGER opt_not_exists string_or_token trigger_type trigger_event ON table_name BEGIN statement_list opt_semicolon END {
+			$$ = new CreateStatement(kCreateTrigger);
+			$$->ifNotExists = $3;
+			$$->triggerName = $4;
+			$$->triggerType = (TriggerType) $5;
+			$$->triggerEvent = (TriggerEvent) $6;
+			$$->schema = $8.schema;
+			$$->tableName = $8.name;
+			$$->triggerStatementList = $10;
+		}
 	;
 
 opt_not_exists:
@@ -394,6 +404,18 @@ column_type:
 	|	FLOAT { $$ = ColumnDefinition::REAL; }
 	|	VARCHAR { $$ = ColumnDefinition::TEXT; }
 	|	DATETIME { $$ = ColumnDefinition::DATETIME; }
+	;
+
+trigger_type:
+		BEFORE { $$ = kTriggerBefore; }
+	|	AFTER { $$ = kTriggerAfter; }
+	|	INSTEAD OF { $$ = kTriggerInsteadOf; }
+	;
+
+trigger_event:
+		DELETE { $$ = kTriggerEventDelete; }
+	|	INSERT { $$ = kTriggerEventInsert; }
+	|	UPDATE { $$ = kTriggerEventUpdate; }
 	;
 
 /******************************

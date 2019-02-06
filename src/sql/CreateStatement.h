@@ -58,23 +58,48 @@ namespace hsql {
     kCreateTrigger,
   };
 
+  enum TriggerType {
+    kTriggerBefore,
+    kTriggerAfter,
+    kTriggerInsteadOf
+  };
+
+  enum TriggerEvent {
+    kTriggerEventDelete,
+    kTriggerEventInsert,
+    kTriggerEventUpdate
+  };
+
   // Represents SQL Create statements.
   // Example: "CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)"
   struct CreateStatement : SQLStatement {
     CreateStatement(CreateType type);
     virtual ~CreateStatement();
 
+    //General variables
     CreateType type;
     bool isVirtual;      // default: false
     bool isTemporary;    // default: false
     bool ifNotExists;    // default: false
     char* schema;        // default: nullptr
     char* tableName;     // default: nullptr
+
+    // CREATE INDEX variables
     char* indexName;     // default: nullptr
     char* indexedColumn; // default: nullptr
+
+    // CREATE TABLE variables
     std::vector<ColumnDefinition*>* columns; // default: nullptr
+
+    // CREATE VIEW variables
     std::vector<char*>* viewColumns;
     SelectStatement* select;
+
+    // CREATE TRIGGER variables
+    char *triggerName; // default: nullptr
+    TriggerType  triggerType;
+    TriggerEvent triggerEvent;
+    std::vector<SQLStatement*> *triggerStatementList;
   };
 
 } // namespace hsql

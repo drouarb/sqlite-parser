@@ -65,7 +65,9 @@ namespace hsql {
     indexedColumn(nullptr),
     columns(nullptr),
     viewColumns(nullptr),
-    select(nullptr) {};
+    select(nullptr),
+    triggerName(nullptr),
+    triggerStatementList(nullptr) {};
 
   CreateStatement::~CreateStatement() {
     free(schema);
@@ -73,6 +75,8 @@ namespace hsql {
     delete select;
     delete indexName;
     delete indexedColumn;
+    delete triggerName;
+    delete triggerStatementList;
 
     if (columns != nullptr) {
       for (ColumnDefinition* def : *columns) {
