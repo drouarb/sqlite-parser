@@ -33,8 +33,9 @@ namespace hsql {
             isAutoIncrement = true;
             break;
         }
-        //delete c;
+        delete c;
       }
+      delete constraints;
   };
 
   ColumnDefinition::~ColumnDefinition() {
