@@ -854,9 +854,8 @@ table_ref_name_no_alias:
 
 
 table_name:
-		IDENTIFIER                { $$.schema = nullptr; $$.name = $1;}
-	|	IDENTIFIER '.' IDENTIFIER { $$.schema = $1; $$.name = $3; }
-	|	TEMP '.' IDENTIFIER       { $$.schema = strdup("temp"); $$.name = $3; }
+		string_or_token                     { $$.schema = nullptr; $$.name = $1;}
+	|	string_or_token '.' string_or_token { $$.schema = $1; $$.name = $3; }
 	;
 
 
@@ -954,6 +953,7 @@ string_or_token:
 	|	TEXT        {{ $$ = strdup("text"); }}
 	|	ON          {{ $$ = strdup("ON"); }}
 	|	KEY         {{ $$ = strdup("key"); }}
+	|	TEMP		{{ $$ = strdup("temp"); }}
 	;
 
 %%
