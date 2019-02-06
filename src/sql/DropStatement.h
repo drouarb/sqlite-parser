@@ -11,7 +11,8 @@ namespace hsql {
     kDropSchema,
     kDropIndex,
     kDropView,
-    kDropPreparedStatement
+    kDropPreparedStatement,
+    kDropTrigger
   };
 
   // Represents SQL Delete statements.

@@ -301,7 +301,6 @@ pragma_statement:
 /******************************
  * Create Statement
  * CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)
- * TODO: CREATE INDEX; CREATE TRIGGER
  ******************************/
 create_statement:
 		CREATE opt_virtual opt_temporary TABLE opt_not_exists table_name '(' column_def_commalist ')' {
@@ -413,6 +412,11 @@ drop_statement:
 			$$->ifExists = $3;
 			$$->schema = $4.schema;
 			$$->name = $4.name;
+		}
+	|	DROP TRIGGER opt_exists IDENTIFIER {
+			$$ = new DropStatement(kDropTrigger);
+			$$->ifExists = $3;
+			$$->name = $4;
 		}
 	;
 
