@@ -321,6 +321,13 @@ create_statement:
 			$$->viewColumns = $5;
 			$$->select = $7;
 		}
+	|	CREATE INDEX string_or_token ON table_name '(' string_or_token ')' {
+			$$ = new CreateStatement(kCreateIndex);
+			$$->indexName = $3;
+			$$->schema = $5.schema;
+			$$->tableName = $5.name;
+			$$->indexedColumn = $7;
+		}
 	;
 
 opt_not_exists:

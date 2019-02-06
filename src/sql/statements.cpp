@@ -61,6 +61,8 @@ namespace hsql {
     ifNotExists(false),
     schema(nullptr),
     tableName(nullptr),
+    indexName(nullptr),
+    indexedColumn(nullptr),
     columns(nullptr),
     viewColumns(nullptr),
     select(nullptr) {};
@@ -69,6 +71,8 @@ namespace hsql {
     free(schema);
     free(tableName);
     delete select;
+    delete indexName;
+    delete indexedColumn;
 
     if (columns != nullptr) {
       for (ColumnDefinition* def : *columns) {

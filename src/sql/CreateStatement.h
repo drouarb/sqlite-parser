@@ -65,11 +65,13 @@ namespace hsql {
     virtual ~CreateStatement();
 
     CreateType type;
-    bool isVirtual;   // default: false
-    bool isTemporary; // default: false
-    bool ifNotExists; // default: false
-    char* schema;     // default: nullptr
-    char* tableName;  // default: nullptr
+    bool isVirtual;      // default: false
+    bool isTemporary;    // default: false
+    bool ifNotExists;    // default: false
+    char* schema;        // default: nullptr
+    char* tableName;     // default: nullptr
+    char* indexName;     // default: nullptr
+    char* indexedColumn; // default: nullptr
     std::vector<ColumnDefinition*>* columns; // default: nullptr
     std::vector<char*>* viewColumns;
     SelectStatement* select;
