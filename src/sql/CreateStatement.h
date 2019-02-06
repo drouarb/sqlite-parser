@@ -13,7 +13,8 @@ namespace hsql {
       PRIMARYKEY,
       NOTNULL,
       UNIQUE,
-      DEFAULT
+      DEFAULT,
+      AUTOINCREMENT
     };
 
     ColumnConstraint(ConstraintType type);
@@ -44,6 +45,7 @@ namespace hsql {
     bool isUnique;
     bool nullable;
     Expr* defaultVal;
+    bool isAutoIncrement;
   };
 
   enum CreateType {

@@ -345,7 +345,7 @@ column_def_commalist:
 	;
 
 column_def:
-		IDENTIFIER column_type column_constraint_list_nullable {
+		string_or_token column_type column_constraint_list_nullable {
 			$$ = new ColumnDefinition($1, (ColumnDefinition::DataType) $2, $3);
 		}
 	;
@@ -366,6 +366,7 @@ column_constraint:
 	|	NOTNULL { $$ = new ColumnConstraint(ColumnConstraint::NOTNULL); }
 	|	UNIQUE { $$ = new ColumnConstraint(ColumnConstraint::UNIQUE); }
 	|	DEFAULT expr { $$ = new ColumnConstraint(ColumnConstraint::DEFAULT, $2); }
+	|	AUTOINCREMENT { $$ = new ColumnConstraint(ColumnConstraint::AUTOINCREMENT); }
 	; // TODO: foreign key; autoincrease
 
 

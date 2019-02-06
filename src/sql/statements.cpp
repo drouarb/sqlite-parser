@@ -10,7 +10,8 @@ namespace hsql {
     isPrimaryKey(false),
     isUnique(false),
     nullable(true),
-    defaultVal(nullptr) {
+    defaultVal(nullptr),
+    isAutoIncrement(false) {
       for (ColumnConstraint* c : *constraints) {
         switch (c->type) {
           case ColumnConstraint::PRIMARYKEY:
@@ -26,6 +27,9 @@ namespace hsql {
             break;
           case ColumnConstraint::DEFAULT:
             defaultVal = c->expr;
+            break;
+          case ColumnConstraint::AUTOINCREMENT:
+            isAutoIncrement = true;
             break;
         }
         //delete c;
