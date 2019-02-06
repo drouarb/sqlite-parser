@@ -32,7 +32,8 @@ namespace hsql {
       TEXT,
       INTEGER,
       REAL,
-      BLOB
+      BLOB,
+      DATETIME
     };
 
     ColumnDefinition(char* name, DataType type, std::vector<hsql::ColumnConstraint*>* constraints);
