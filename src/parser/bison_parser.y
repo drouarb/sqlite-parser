@@ -348,6 +348,11 @@ column_def:
 		string_or_token column_type column_constraint_list_nullable {
 			$$ = new ColumnDefinition($1, (ColumnDefinition::DataType) $2, $3);
 		}
+	|	string_or_token column_type '(' INTVAL ')' column_constraint_list_nullable {
+			$$ = new ColumnDefinition($1, (ColumnDefinition::DataType) $2, $6);
+			$$->hasTypemod = true;
+			$$->typemod = $4;
+		}
 	;
 
 column_constraint_list_nullable:

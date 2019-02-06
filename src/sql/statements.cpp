@@ -11,7 +11,8 @@ namespace hsql {
     isUnique(false),
     nullable(true),
     defaultVal(nullptr),
-    isAutoIncrement(false) {
+    isAutoIncrement(false),
+    hasTypemod(false) {
       for (ColumnConstraint* c : *constraints) {
         switch (c->type) {
           case ColumnConstraint::PRIMARYKEY:

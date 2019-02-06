@@ -46,6 +46,8 @@ namespace hsql {
     bool nullable;
     Expr* defaultVal;
     bool isAutoIncrement;
+    bool hasTypemod;
+    int typemod;
   };
 
   enum CreateType {
