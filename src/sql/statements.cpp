@@ -27,6 +27,7 @@ namespace hsql {
             isUnique = true;
             break;
           case ColumnConstraint::DEFAULT:
+            delete(defaultVal);
             defaultVal = c->expr;
             break;
           case ColumnConstraint::AUTOINCREMENT:
@@ -51,9 +52,7 @@ namespace hsql {
     type(type),
     expr(expr) {};
 
-  ColumnConstraint::~ColumnConstraint() {
-    delete expr;
-  }
+  ColumnConstraint::~ColumnConstraint() { }
 
   // CreateStatemnet
   CreateStatement::CreateStatement(CreateType type) :
