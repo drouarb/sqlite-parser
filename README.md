@@ -55,6 +55,7 @@ with other project members:
 
 * Fanglin Chen ([@chentc](https://github.com/chentc))
 * Charlie Qiu ([@Charlie818](https://github.com/Charlie818))
+* Benjamin DROUARD ([@drouarb](https://github.com/drouarb))
 
 We appreciate the help of other open-source contributors! If you are submitting
 a pull request, feel free to create a list here and add your name if you want.
