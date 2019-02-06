@@ -376,7 +376,7 @@ column_type:
 	|	LONG { $$ = ColumnDefinition::INTEGER; }
 	|	BOOLEAN { $$ = ColumnDefinition::INTEGER; }
 	|	TEXT { $$ = ColumnDefinition::TEXT; }
-	|	BLOB { $$ = ColumnDefinition::TEXT; }
+	|	BLOB { $$ = ColumnDefinition::BLOB; }
 	|	REAL { $$ = ColumnDefinition::REAL; }
 	|	DOUBLE { $$ = ColumnDefinition::REAL; }
 	|	FLOAT { $$ = ColumnDefinition::REAL; }
