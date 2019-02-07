@@ -157,6 +157,23 @@ namespace hsql {
     delete expr;
   }
 
+  //Alter Statement
+  AlterStatement::AlterStatement(hsql::AlterType type) :
+    SQLStatement(kStmtAlter),
+    alterType(type),
+    schema(nullptr),
+    tableName(nullptr),
+    columnName(nullptr),
+    newName(nullptr),
+    columnDefinition(nullptr) { }
+
+  AlterStatement::~AlterStatement() {
+    delete schema;
+    delete tableName;
+    delete columnName;
+    delete newName;
+    delete columnDefinition;
+  }
   // SelectStatement.h
 
   // OrderDescription

@@ -8,5 +8,6 @@
 #include "src/sql/UpdateStatement.h"
 #include "src/sql/DeleteStatement.h"
 #include "src/sql/DropStatement.h"
+#include "src/sql/AlterStatement.h"
 
 #endif // __SQLPARSER__STATEMENTS_H__

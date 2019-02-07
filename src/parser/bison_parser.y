@@ -103,6 +103,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::UpdateStatement* 	update_stmt;
 	hsql::DropStatement*   	drop_stmt;
 	hsql::PragmaStatement*  pragma_stmt;
+	hsql::AlterStatement*   alter_stmt;
 	
 	hsql::TableName table_name;
 	hsql::TableRef* table;
@@ -183,6 +184,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <update_stmt> update_statement
 %type <drop_stmt>	drop_statement
 %type <pragma_stmt> pragma_statement
+%type <alter_stmt> alter_statement
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
@@ -284,9 +286,38 @@ statement:
 	|	update_statement { $$ = $1; }
 	|	drop_statement { $$ = $1; }
 	|	pragma_statement { $$ = $1; }
+	|	alter_statement { $$ = $1; }
 	;
+
 /******************************
- * Create Statement
+ * ALTER Statement
+ * ALTER TABLE student ADD school_name varchar(255)
+ ******************************/
+
+alter_statement:
+		ALTER TABLE table_name RENAME TO string_or_token {
+			$$ = new AlterStatement(kAlterRenameTable);
+			$$->schema = $3.schema;
+			$$->tableName = $3.name;
+			$$->newName = $6;
+		}
+	|	ALTER TABLE table_name RENAME COLUMN string_or_token TO string_or_token {
+			$$ = new AlterStatement(kAlterRenameColumn);
+			$$->schema = $3.schema;
+			$$->tableName = $3.name;
+			$$->columnName = $6;
+			$$->newName = $8;
+		}
+	|	ALTER TABLE table_name ADD column_def {
+			$$ = new AlterStatement(kAlterAddColumn);
+			$$->schema = $3.schema;
+			$$->tableName = $3.name;
+			$$->columnDefinition = $5;
+		}
+	;
+
+/******************************
+ * PRAGMA Statement
  * PRAGMA cache_size=2000
  * PRAGMA table_info(metadata_items)
  ******************************/
