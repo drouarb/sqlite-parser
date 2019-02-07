@@ -466,12 +466,12 @@ drop_statement:
 			$$->schema = $4.schema;
 			$$->name = $4.name;
 		}
-	|	DROP TRIGGER opt_exists IDENTIFIER {
+	|	DROP TRIGGER opt_exists string_or_token {
 			$$ = new DropStatement(kDropTrigger);
 			$$->ifExists = $3;
 			$$->name = $4;
 		}
-	|	DROP INDEX opt_exists IDENTIFIER {
+	|	DROP INDEX opt_exists string_or_token {
 			$$ = new DropStatement(kDropIndex);
 			$$->ifExists = $3;
 			$$->name = $4;
