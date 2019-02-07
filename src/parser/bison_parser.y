@@ -351,13 +351,13 @@ create_statement:
 			$$->viewColumns = $5;
 			$$->select = $7;
 		}
-	|	CREATE INDEX opt_not_exists string_or_token ON table_name '(' string_or_token ')' {
+	|	CREATE INDEX opt_not_exists string_or_token ON table_name '(' ident_commalist ')' {
 			$$ = new CreateStatement(kCreateIndex);
 			$$->ifNotExists = $3;
 			$$->indexName = $4;
 			$$->schema = $6.schema;
 			$$->tableName = $6.name;
-			$$->indexedColumn = $8;
+			$$->indexedColumns = $8;
 		}
 	|	CREATE TRIGGER opt_not_exists string_or_token trigger_type trigger_event ON table_name BEGIN statement_list opt_semicolon END {
 			$$ = new CreateStatement(kCreateTrigger);

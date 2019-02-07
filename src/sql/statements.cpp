@@ -62,7 +62,7 @@ namespace hsql {
     schema(nullptr),
     tableName(nullptr),
     indexName(nullptr),
-    indexedColumn(nullptr),
+    indexedColumns(nullptr),
     columns(nullptr),
     viewColumns(nullptr),
     select(nullptr),
@@ -74,7 +74,6 @@ namespace hsql {
     free(tableName);
     delete select;
     delete indexName;
-    delete indexedColumn;
     delete triggerName;
     delete triggerStatementList;
 
@@ -90,6 +89,13 @@ namespace hsql {
         free(column);
       }
       delete viewColumns;
+    }
+
+    if (indexedColumns != nullptr) {
+      for (char *column : *indexedColumns) {
+        free(column);
+      }
+      delete indexedColumns;
     }
   }
 

@@ -85,8 +85,8 @@ namespace hsql {
     char* tableName;     // default: nullptr
 
     // CREATE INDEX variables
-    char* indexName;     // default: nullptr
-    char* indexedColumn; // default: nullptr
+    char* indexName;                    // default: nullptr
+    std::vector<char*> *indexedColumns; // default: nullptr
 
     // CREATE TABLE variables
     std::vector<ColumnDefinition*>* columns; // default: nullptr
