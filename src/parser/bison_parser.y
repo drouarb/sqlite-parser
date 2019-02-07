@@ -440,6 +440,11 @@ drop_statement:
 			$$->ifExists = $3;
 			$$->name = $4;
 		}
+	|	DROP INDEX opt_exists IDENTIFIER {
+			$$ = new DropStatement(kDropIndex);
+			$$->ifExists = $3;
+			$$->name = $4;
+		}
 	;
 
 opt_exists:
