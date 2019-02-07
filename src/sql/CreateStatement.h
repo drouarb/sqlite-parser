@@ -78,6 +78,7 @@ namespace hsql {
 
     //General variables
     CreateType type;
+    bool isUnique;       // default: false
     bool isVirtual;      // default: false
     bool isTemporary;    // default: false
     bool ifNotExists;    // default: false

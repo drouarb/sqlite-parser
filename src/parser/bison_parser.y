@@ -187,7 +187,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <alter_stmt> alter_statement
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
-%type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace
+%type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace opt_unique
 %type <uval>		opt_join_type column_type trigger_type trigger_event
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
@@ -351,13 +351,14 @@ create_statement:
 			$$->viewColumns = $5;
 			$$->select = $7;
 		}
-	|	CREATE INDEX opt_not_exists string_or_token ON table_name '(' ident_commalist ')' {
+	|	CREATE opt_unique INDEX opt_not_exists string_or_token ON table_name '(' ident_commalist ')' {
 			$$ = new CreateStatement(kCreateIndex);
-			$$->ifNotExists = $3;
-			$$->indexName = $4;
-			$$->schema = $6.schema;
-			$$->tableName = $6.name;
-			$$->indexedColumns = $8;
+			$$->isUnique = $2;
+			$$->ifNotExists = $4;
+			$$->indexName = $5;
+			$$->schema = $7.schema;
+			$$->tableName = $7.name;
+			$$->indexedColumns = $9;
 		}
 	|	CREATE TRIGGER opt_not_exists string_or_token trigger_type trigger_event ON table_name BEGIN statement_list opt_semicolon END {
 			$$ = new CreateStatement(kCreateTrigger);
@@ -370,6 +371,10 @@ create_statement:
 			$$->triggerStatementList = $10;
 		}
 	;
+
+opt_unique:
+		UNIQUE { $$ = true; }
+	|	/* empty */ { $$ = false; }
 
 opt_not_exists:
 		IF NOT EXISTS { $$ = true; }

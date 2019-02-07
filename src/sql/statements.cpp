@@ -58,6 +58,7 @@ namespace hsql {
   CreateStatement::CreateStatement(CreateType type) :
     SQLStatement(kStmtCreate),
     type(type),
+    isUnique(false),
     ifNotExists(false),
     schema(nullptr),
     tableName(nullptr),
