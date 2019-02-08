@@ -66,6 +66,33 @@ namespace hsql {
     ForeignKeyConstraint *fk;
   };
 
+  enum ConflictClause {
+    kConflictUndefined,
+    kConflictRollback,
+    kConflictAbort,
+    kConflictFail,
+    kConflictIgnore,
+    kConflictReplace
+  };
+
+  struct TableConstraint {
+    enum TableConstraintType {
+      kPrimaryKey,
+      kForeignKey,
+      kUnique,
+      kCheck
+    };
+
+    TableConstraint(TableConstraintType type);
+    ~TableConstraint();
+
+    TableConstraintType type;
+    std::vector<char *> *columns;
+    Expr *expr;
+    ForeignKeyConstraint *foreignKeyConstraint;
+    ConflictClause onConflict;
+  };
+
   // Represents definition of a table column
   struct ColumnDefinition {
     enum DataType {
@@ -91,9 +118,7 @@ namespace hsql {
     bool hasTypemod;
     int typemod;
     bool isForeignKey;
-    char *referenceTable;
-    char *referenceColumn;
-    std::vector<ForeignKeyEvent*>* fkEvents;
+    ForeignKeyConstraint *foreignKeyConstraint;
   };
 
   enum CreateType {
@@ -135,7 +160,8 @@ namespace hsql {
     std::vector<char*> *indexedColumns; // default: nullptr
 
     // CREATE TABLE variables
-    std::vector<ColumnDefinition*>* columns; // default: nullptr
+    std::vector<ColumnDefinition*>* columns;          // default: nullptr
+    std::vector<TableConstraint *>* tableConstraints; // default: nullptr
 
     // CREATE VIEW variables
     std::vector<char*>* viewColumns;

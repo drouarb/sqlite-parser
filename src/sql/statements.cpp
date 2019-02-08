@@ -14,9 +14,7 @@ namespace hsql {
     isAutoIncrement(false),
     hasTypemod(false),
     isForeignKey(false),
-    referenceTable(nullptr),
-    referenceColumn(nullptr),
-    fkEvents(nullptr) {
+    foreignKeyConstraint(nullptr) {
       for (ColumnConstraint* c : *constraints) {
         switch (c->type) {
           case ColumnConstraint::PRIMARYKEY:
@@ -31,7 +29,7 @@ namespace hsql {
             isUnique = true;
             break;
           case ColumnConstraint::DEFAULT:
-            delete(defaultVal);
+            delete defaultVal;
             defaultVal = c->expr;
             break;
           case ColumnConstraint::AUTOINCREMENT:
@@ -39,9 +37,8 @@ namespace hsql {
             break;
           case ColumnConstraint::FOREIGNKEY:
             isForeignKey = true;
-            referenceTable = c->fk->table;
-            referenceColumn = c->fk->columns->front();
-            fkEvents = c->fk->events;
+            delete foreignKeyConstraint;
+            foreignKeyConstraint = c->fk;
         }
         delete c;
       }
@@ -51,13 +48,7 @@ namespace hsql {
   ColumnDefinition::~ColumnDefinition() {
     free(name);
     delete defaultVal;
-    delete referenceTable;
-    delete referenceColumn;
-    if (fkEvents) {
-      for (auto e : *fkEvents)
-        delete e;
-      delete fkEvents;
-    }
+    delete foreignKeyConstraint;
   }
 
   // ColumnConstraint
@@ -77,6 +68,23 @@ namespace hsql {
           fk(constraint) {};
 
   ColumnConstraint::~ColumnConstraint() { }
+
+  // TableConstraint
+  TableConstraint::TableConstraint(hsql::TableConstraint::TableConstraintType type):
+    type(type),
+    columns(nullptr),
+    expr(nullptr),
+    foreignKeyConstraint(nullptr) {}
+
+  TableConstraint::~TableConstraint() {
+    if (columns) {
+      for (auto &c : *columns)
+        delete c;
+      delete columns;
+    }
+    delete expr;
+    delete foreignKeyConstraint;
+  }
 
   // ForeignKeyConstraint
   ForeignKeyConstraint::ForeignKeyConstraint(char *table):
@@ -119,6 +127,7 @@ namespace hsql {
     indexName(nullptr),
     indexedColumns(nullptr),
     columns(nullptr),
+    tableConstraints(nullptr),
     viewColumns(nullptr),
     select(nullptr),
     triggerName(nullptr),
@@ -137,6 +146,12 @@ namespace hsql {
         delete def;
       }
       delete columns;
+    }
+
+    if (tableConstraints != nullptr) {
+      for (auto &tc : *tableConstraints)
+        delete tc;
+      delete tableConstraints;
     }
 
     if (viewColumns != nullptr) {

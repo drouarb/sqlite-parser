@@ -117,6 +117,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::UpdateClause* update_t;
 	hsql::ForeignKeyConstraint* fkconstraint_t;
 	hsql::ForeignKeyEvent* fkevent_t;
+	hsql::TableConstraint* tconstraint_t;
 
 	std::vector<hsql::SQLStatement*>* stmt_vec;
 
@@ -128,6 +129,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	std::vector<hsql::Expr*>* expr_vec;
 	std::vector<hsql::OrderDescription*>* order_vec;
 	std::vector<hsql::ForeignKeyEvent*>* fkevent_vec;
+	std::vector<hsql::TableConstraint*>* tconstraint_vec;
 }
 
 
@@ -191,7 +193,8 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace opt_unique
-%type <uval>		opt_join_type column_type trigger_type trigger_event foreign_key_action opt_foreign_key_deferrable
+%type <uval>		opt_join_type column_type trigger_type trigger_event foreign_key_action
+%type <uval>		opt_foreign_key_deferrable opt_conflict_clause
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
@@ -208,6 +211,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <group_t>		opt_group
 %type <fkconstraint_t>	foreign_key_constraint
 %type <fkevent_t>	foreign_key_event
+%type <tconstraint_t>	table_constraint
 
 %type <str_vec>		ident_commalist opt_column_list
 %type <expr_vec> 	expr_list select_list
@@ -217,6 +221,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <column_vec>	column_def_commalist
 %type <cconstraint_vec>	column_constraint_list column_constraint_list_nullable
 %type <fkevent_vec>	foreign_key_event_list
+%type <tconstraint_vec>	opt_table_constraint_list
 
 /******************************
  ** Token Precedence and Associativity
@@ -340,7 +345,7 @@ pragma_statement:
  * CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)
  ******************************/
 create_statement:
-		CREATE opt_virtual opt_temporary TABLE opt_not_exists table_name '(' column_def_commalist ')' {
+		CREATE opt_virtual opt_temporary TABLE opt_not_exists table_name '(' column_def_commalist opt_coma opt_table_constraint_list ')' {
 			$$ = new CreateStatement(kCreateTable);
 			$$->isVirtual = $2;
 			$$->isTemporary = $3;
@@ -348,6 +353,7 @@ create_statement:
 			$$->schema = $6.schema;
 			$$->tableName = $6.name;
 			$$->columns = $8;
+			$$->tableConstraints = $10;
 		}
 	|	CREATE VIEW opt_not_exists table_name opt_column_list AS select_statement {
 			$$ = new CreateStatement(kCreateView);
@@ -455,7 +461,7 @@ opt_foreign_key_deferrable:
 
 foreign_key_event_list:
 		foreign_key_event { $$ = new std::vector<ForeignKeyEvent *>(); $$->push_back($1); }
-	|	foreign_key_event_list ',' foreign_key_event { $1->push_back($3); $$ = $1; }
+	|	foreign_key_event_list foreign_key_event { $1->push_back($2); $$ = $1; }
 	|	/* empty */ { $$ = nullptr; }
 	;
 
@@ -506,6 +512,43 @@ trigger_event:
 		DELETE { $$ = kTriggerEventDelete; }
 	|	INSERT { $$ = kTriggerEventInsert; }
 	|	UPDATE { $$ = kTriggerEventUpdate; }
+	;
+
+opt_table_constraint_list:
+		table_constraint { $$ = new std::vector<TableConstraint *>(); $$->push_back($1); }
+	|	opt_table_constraint_list ',' table_constraint { $1->push_back($3); $$ = $1; }
+	|	/* empty */ { $$ = nullptr; }
+	;
+
+table_constraint:
+		FOREIGN KEY '(' ident_commalist ')' foreign_key_constraint {
+			$$ = new TableConstraint(TableConstraint::kForeignKey);
+			$$->columns = $4;
+			$$->foreignKeyConstraint = $6;
+		}
+	|	PRIMARY KEY '(' ident_commalist ')' opt_conflict_clause {
+			$$ = new TableConstraint(TableConstraint::kPrimaryKey);
+			$$->columns = $4;
+			$$->onConflict = (hsql::ConflictClause) $6;
+		}
+	|	UNIQUE '(' ident_commalist ')' opt_conflict_clause {
+			$$ = new TableConstraint(TableConstraint::kUnique);
+			$$->columns = $3;
+			$$->onConflict = (hsql::ConflictClause) $5;
+		}
+	|	CHECK '(' expr ')' {
+			$$ = new TableConstraint(TableConstraint::kCheck);
+			$$->expr = $3;
+		}
+	;
+
+opt_conflict_clause:
+		ON CONFLICT ROLLBACK { $$ = kConflictRollback; }
+	|	ON CONFLICT ABORT { $$ = kConflictAbort; }
+	|	ON CONFLICT FAIL { $$ = kConflictFail; }
+	|	ON CONFLICT IGNORE { $$ = kConflictIgnore; }
+	|	ON CONFLICT REPLACE { $$ = kConflictReplace; }
+	|	/* empty */ { $$ = kConflictUndefined; }
 	;
 
 /******************************
@@ -1077,6 +1120,10 @@ opt_semicolon:
 	|	/* empty */
 	;
 
+opt_coma:
+		','
+	|	/* empty */
+	;
 
 ident_commalist:
 		string_or_token { $$ = new std::vector<char*>(); $$->push_back($1); }
