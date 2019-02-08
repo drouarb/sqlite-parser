@@ -12,7 +12,11 @@ namespace hsql {
     nullable(true),
     defaultVal(nullptr),
     isAutoIncrement(false),
-    hasTypemod(false) {
+    hasTypemod(false),
+    isForeignKey(false),
+    referenceTable(nullptr),
+    referenceColumn(nullptr),
+    fkEvents(nullptr) {
       for (ColumnConstraint* c : *constraints) {
         switch (c->type) {
           case ColumnConstraint::PRIMARYKEY:
@@ -33,6 +37,11 @@ namespace hsql {
           case ColumnConstraint::AUTOINCREMENT:
             isAutoIncrement = true;
             break;
+          case ColumnConstraint::FOREIGNKEY:
+            isForeignKey = true;
+            referenceTable = c->fk->table;
+            referenceColumn = c->fk->columns->front();
+            fkEvents = c->fk->events;
         }
         delete c;
       }
@@ -42,17 +51,62 @@ namespace hsql {
   ColumnDefinition::~ColumnDefinition() {
     free(name);
     delete defaultVal;
+    delete referenceTable;
+    delete referenceColumn;
+    if (fkEvents) {
+      for (auto e : *fkEvents)
+        delete e;
+      delete fkEvents;
+    }
   }
 
   // ColumnConstraint
   ColumnConstraint::ColumnConstraint(ConstraintType type) :
-    type(type) {};
+          type(type),
+          expr(nullptr),
+          fk(nullptr) {};
 
   ColumnConstraint::ColumnConstraint(ConstraintType type, Expr *expr) :
-    type(type),
-    expr(expr) {};
+          type(type),
+          expr(expr),
+          fk(nullptr) {};
+
+  ColumnConstraint::ColumnConstraint(ConstraintType type, ForeignKeyConstraint *constraint) :
+          type(type),
+          expr(nullptr),
+          fk(constraint) {};
 
   ColumnConstraint::~ColumnConstraint() { }
+
+  // ForeignKeyConstraint
+  ForeignKeyConstraint::ForeignKeyConstraint(char *table):
+          table(table),
+          columns(nullptr),
+          events(nullptr),
+          deferred(kUndefined) {}
+
+  ForeignKeyConstraint::~ForeignKeyConstraint() {
+    delete table;
+    if (columns) {
+      for (auto &c : *columns)
+        delete c;
+      delete columns;
+    }
+    if (events) {
+      for (auto &e : *events)
+        delete e;
+      delete events;
+    }
+  }
+
+  // ForeignKeyEvent
+  ForeignKeyEvent::ForeignKeyEvent(hsql::ForeignKeyEvent::ForeignKeyEventType type):
+          type(type),
+          match(nullptr) {};
+
+  ForeignKeyEvent::~ForeignKeyEvent() {
+    delete match;
+  }
 
   // CreateStatemnet
   CreateStatement::CreateStatement(CreateType type) :

@@ -7,6 +7,44 @@
 namespace hsql {
   struct SelectStatement;
 
+  struct ForeignKeyEvent {
+    enum ForeignKeyEventType {
+      kFKDelete,
+      kFKUpdate,
+      kFKMatch,
+    };
+    enum ForeignKeyEventAction {
+      kFKSetNull,
+      kFKSetDefault,
+      kFKCascade,
+      kFKRestrict,
+      kFKNoAction
+    };
+
+    ForeignKeyEvent(ForeignKeyEventType type);
+    virtual ~ForeignKeyEvent();
+
+    ForeignKeyEventType type;
+    char *match;
+    ForeignKeyEventAction action;
+  };
+
+  struct ForeignKeyConstraint {
+    enum ForeignKeyDeferred {
+      kDeferred,
+      kNotDeferred,
+      kUndefined
+    };
+
+    ForeignKeyConstraint(char *table);
+    virtual ~ForeignKeyConstraint();
+
+    char *table;
+    std::vector<char *> *columns;
+    std::vector<ForeignKeyEvent *> *events;
+    ForeignKeyDeferred deferred;
+  };
+
   // Represents definition of a column constraint
   struct ColumnConstraint {
     enum ConstraintType {
@@ -14,15 +52,18 @@ namespace hsql {
       NOTNULL,
       UNIQUE,
       DEFAULT,
-      AUTOINCREMENT
+      AUTOINCREMENT,
+      FOREIGNKEY
     };
 
     ColumnConstraint(ConstraintType type);
     ColumnConstraint(ConstraintType type, Expr *expr);
+    ColumnConstraint(ConstraintType type, ForeignKeyConstraint *constraint);
     virtual ~ColumnConstraint();
 
     ConstraintType type;
     Expr *expr;
+    ForeignKeyConstraint *fk;
   };
 
   // Represents definition of a table column
@@ -49,6 +90,10 @@ namespace hsql {
     bool isAutoIncrement;
     bool hasTypemod;
     int typemod;
+    bool isForeignKey;
+    char *referenceTable;
+    char *referenceColumn;
+    std::vector<ForeignKeyEvent*>* fkEvents;
   };
 
   enum CreateType {

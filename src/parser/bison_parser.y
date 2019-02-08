@@ -115,6 +115,8 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::ColumnConstraint* cconstraint_t;
 	hsql::GroupByDescription* group_t;
 	hsql::UpdateClause* update_t;
+	hsql::ForeignKeyConstraint* fkconstraint_t;
+	hsql::ForeignKeyEvent* fkevent_t;
 
 	std::vector<hsql::SQLStatement*>* stmt_vec;
 
@@ -125,6 +127,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	std::vector<hsql::UpdateClause*>* update_vec;
 	std::vector<hsql::Expr*>* expr_vec;
 	std::vector<hsql::OrderDescription*>* order_vec;
+	std::vector<hsql::ForeignKeyEvent*>* fkevent_vec;
 }
 
 
@@ -188,7 +191,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <table_name>  table_name
 %type <sval> 		opt_alias alias string_or_token opt_indexed_by indexed_by
 %type <bval> 		opt_not_exists opt_exists opt_distinct opt_virtual opt_temporary opt_or_replace opt_unique
-%type <uval>		opt_join_type column_type trigger_type trigger_event
+%type <uval>		opt_join_type column_type trigger_type trigger_event foreign_key_action opt_foreign_key_deferrable
 %type <table> 		from_clause table_ref table_ref_atomic table_ref_name nonjoin_table_ref_atomic
 %type <table>		join_clause table_ref_name_no_alias
 %type <expr> 		expr operand scalar_expr unary_expr binary_expr logic_expr exists_expr
@@ -203,6 +206,8 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <cconstraint_t>	column_constraint
 %type <update_t>	update_clause
 %type <group_t>		opt_group
+%type <fkconstraint_t>	foreign_key_constraint
+%type <fkevent_t>	foreign_key_event
 
 %type <str_vec>		ident_commalist opt_column_list
 %type <expr_vec> 	expr_list select_list
@@ -211,6 +216,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <update_vec>	update_clause_commalist
 %type <column_vec>	column_def_commalist
 %type <cconstraint_vec>	column_constraint_list column_constraint_list_nullable
+%type <fkevent_vec>	foreign_key_event_list
 
 /******************************
  ** Token Precedence and Associativity
@@ -425,8 +431,56 @@ column_constraint:
 	|	UNIQUE { $$ = new ColumnConstraint(ColumnConstraint::UNIQUE); }
 	|	DEFAULT expr { $$ = new ColumnConstraint(ColumnConstraint::DEFAULT, $2); }
 	|	AUTOINCREMENT { $$ = new ColumnConstraint(ColumnConstraint::AUTOINCREMENT); }
-	; // TODO: foreign key; autoincrease
+	|	foreign_key_constraint { $$ = new ColumnConstraint(ColumnConstraint::FOREIGNKEY, $1); }
+	;
 
+foreign_key_constraint:
+		REFERENCES string_or_token opt_column_list foreign_key_event_list opt_foreign_key_deferrable {
+			$$ = new ForeignKeyConstraint($2);
+			$$->columns = $3;
+			$$->events = $4;
+			$$->deferred = (ForeignKeyConstraint::ForeignKeyDeferred) $5;
+		}
+	;
+
+opt_foreign_key_deferrable:
+		DEFERRABLE INITIALLY DEFERRED { $$ = ForeignKeyConstraint::kDeferred; }
+	|	NOT DEFERRABLE INITIALLY DEFERRED { $$ = ForeignKeyConstraint::kNotDeferred; }
+	|	NOT DEFERRABLE INITIALLY IMMEDIATE { $$ = ForeignKeyConstraint::kNotDeferred; }
+	|	NOT DEFERRABLE { $$ = ForeignKeyConstraint::kNotDeferred; }
+	|	DEFERRABLE INITIALLY IMMEDIATE { $$ = ForeignKeyConstraint::kNotDeferred; }
+	|	DEFERRABLE { $$ = ForeignKeyConstraint::kNotDeferred; }
+	|	/* empty */  { $$ = ForeignKeyConstraint::kUndefined; }
+	;
+
+foreign_key_event_list:
+		foreign_key_event { $$ = new std::vector<ForeignKeyEvent *>(); $$->push_back($1); }
+	|	foreign_key_event_list ',' foreign_key_event { $1->push_back($3); $$ = $1; }
+	|	/* empty */ { $$ = nullptr; }
+	;
+
+foreign_key_event:
+		ON DELETE foreign_key_action {
+			$$ = new ForeignKeyEvent(ForeignKeyEvent::kFKDelete);
+			$$->action = (ForeignKeyEvent::ForeignKeyEventAction) $3;
+		}
+	|	ON UPDATE foreign_key_action {
+			$$ = new ForeignKeyEvent(ForeignKeyEvent::kFKUpdate);
+			$$->action = (ForeignKeyEvent::ForeignKeyEventAction) $3;
+		}
+	|	MATCH string_or_token {
+			$$ = new ForeignKeyEvent(ForeignKeyEvent::kFKMatch);
+			$$->match = $2;
+		}
+	;
+
+foreign_key_action:
+		SET NULL { $$ = ForeignKeyEvent::kFKSetNull; }
+	|	SET DEFAULT { $$ = ForeignKeyEvent::kFKSetDefault; }
+	|	CASCADE { $$ = ForeignKeyEvent::kFKCascade; }
+	|	RESTRICT { $$ = ForeignKeyEvent::kFKRestrict; }
+	|	NO ACTION { $$ = ForeignKeyEvent::kFKNoAction; }
+	;
 
 column_type:
 		INT { $$ = ColumnDefinition::INTEGER; }
