@@ -933,8 +933,8 @@ comp_expr:
 	;
 
 function_expr:
-		IDENTIFIER '(' ')' { $$ = Expr::makeFunctionRef($1, new std::vector<Expr*>(), false); }
-	|	IDENTIFIER '(' opt_distinct expr_list ')' { $$ = Expr::makeFunctionRef($1, $4, $3); }
+		string_or_token '(' ')' { $$ = Expr::makeFunctionRef($1, new std::vector<Expr*>(), false); }
+	|	string_or_token '(' opt_distinct expr_list ')' { $$ = Expr::makeFunctionRef($1, $4, $3); }
 	;
 
 between_expr:
@@ -1148,13 +1148,14 @@ ident_commalist:
 	;
 
 string_or_token:
-		IDENTIFIER  {{ $$ = $1; }}
-	|	STRING      {{ $$ = $1; }}
-	|	RECURSIVE   {{ $$ = strdup("recursive"); }}
-	|	TEXT        {{ $$ = strdup("text"); }}
-	|	ON          {{ $$ = strdup("ON"); }}
-	|	KEY         {{ $$ = strdup("key"); }}
-	|	TEMP		{{ $$ = strdup("temp"); }}
+		IDENTIFIER	{ $$ = $1; }
+	|	STRING		{ $$ = $1; }
+	|	RECURSIVE	{ $$ = strdup("recursive"); }
+	|	TEXT		{ $$ = strdup("text"); }
+	|	ON		{ $$ = strdup("ON"); }
+	|	KEY		{ $$ = strdup("key"); }
+	|	TEMP		{ $$ = strdup("temp"); }
+	|	REPLACE		{ $$ = strdup("replace"); }
 	;
 
 %%
