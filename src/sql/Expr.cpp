@@ -19,7 +19,8 @@ namespace hsql {
       ival(0),
       ival2(0),
       opType(kOpNone),
-      distinct(false) {};
+      distinct(false),
+      escape(nullptr) {};
 
   Expr::~Expr() {
     delete expr;
@@ -35,6 +36,7 @@ namespace hsql {
       }
       delete exprList;
     }
+    delete escape;
   }
 
   Expr* Expr::make(ExprType type) {

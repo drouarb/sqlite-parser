@@ -98,6 +98,7 @@ namespace hsql {
 
     OperatorType opType;
     bool distinct;
+    Expr *escape;
 
     // Convenience accessor methods.
 
