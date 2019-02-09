@@ -118,6 +118,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	hsql::ForeignKeyConstraint* fkconstraint_t;
 	hsql::ForeignKeyEvent* fkevent_t;
 	hsql::TableConstraint* tconstraint_t;
+	hsql::IndexedColumn* indexedc_t;
 
 	std::vector<hsql::SQLStatement*>* stmt_vec;
 
@@ -130,6 +131,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 	std::vector<hsql::OrderDescription*>* order_vec;
 	std::vector<hsql::ForeignKeyEvent*>* fkevent_vec;
 	std::vector<hsql::TableConstraint*>* tconstraint_vec;
+	std::vector<hsql::IndexedColumn*>* indexedc_vec;
 }
 
 
@@ -212,6 +214,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <fkconstraint_t>	foreign_key_constraint
 %type <fkevent_t>	foreign_key_event
 %type <tconstraint_t>	table_constraint
+%type <indexedc_t>	indexed_column
 
 %type <str_vec>		ident_commalist opt_column_list
 %type <expr_vec> 	expr_list select_list
@@ -222,6 +225,7 @@ int yyerror(YYLTYPE* llocp, SQLParserResult* result, yyscan_t scanner, const cha
 %type <cconstraint_vec>	column_constraint_list column_constraint_list_nullable
 %type <fkevent_vec>	foreign_key_event_list
 %type <tconstraint_vec>	opt_table_constraint_list
+%type <indexedc_vec>	indexed_column_list
 
 /******************************
  ** Token Precedence and Associativity
@@ -363,7 +367,7 @@ create_statement:
 			$$->viewColumns = $5;
 			$$->select = $7;
 		}
-	|	CREATE opt_unique INDEX opt_not_exists string_or_token ON table_name '(' ident_commalist ')' {
+	|	CREATE opt_unique INDEX opt_not_exists string_or_token ON table_name '(' indexed_column_list ')' {
 			$$ = new CreateStatement(kCreateIndex);
 			$$->isUnique = $2;
 			$$->ifNotExists = $4;
@@ -381,6 +385,19 @@ create_statement:
 			$$->schema = $8.schema;
 			$$->tableName = $8.name;
 			$$->triggerStatementList = $10;
+		}
+	;
+
+indexed_column_list:
+		indexed_column { $$ = new std::vector<IndexedColumn*>(); $$->push_back($1); }
+	|	indexed_column_list ',' indexed_column { $1->push_back($3); $$ = $1; }
+	;
+
+indexed_column:
+		string_or_token opt_order_type { $$ = new IndexedColumn($1, $2); }
+	|	string_or_token COLLATE string_or_token opt_order_type {
+			$$ = new IndexedColumn($1, $4);
+			$$->collation = $3;
 		}
 	;
 

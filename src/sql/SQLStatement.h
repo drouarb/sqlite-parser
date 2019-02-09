@@ -18,6 +18,11 @@ namespace hsql {
     kStmtPragma,
   };
 
+  enum OrderType {
+    kOrderAsc,
+    kOrderDesc
+  };
+
   // Base struct for every SQL statement
   struct SQLStatement {
 

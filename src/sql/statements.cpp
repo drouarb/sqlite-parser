@@ -116,6 +116,17 @@ namespace hsql {
     delete match;
   }
 
+  //IndexedColumn
+  IndexedColumn::IndexedColumn(char *name, hsql::OrderType order):
+    name(name),
+    collation(nullptr),
+    order(order) {}
+
+  IndexedColumn::~IndexedColumn() {
+    delete name;
+    delete collation;
+  }
+
   // CreateStatemnet
   CreateStatement::CreateStatement(CreateType type) :
     SQLStatement(kStmtCreate),
@@ -162,8 +173,8 @@ namespace hsql {
     }
 
     if (indexedColumns != nullptr) {
-      for (char *column : *indexedColumns) {
-        free(column);
+      for (auto column : *indexedColumns) {
+        delete column;
       }
       delete indexedColumns;
     }

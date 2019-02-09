@@ -6,12 +6,6 @@
 #include "src/sql/Table.h"
 
 namespace hsql {
-  enum OrderType {
-    kOrderAsc,
-    kOrderDesc
-  };
-
-
   // Description of the order by clause within a select statement.
   struct OrderDescription {
     OrderDescription(OrderType type, Expr* expr);

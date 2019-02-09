@@ -140,6 +140,15 @@ namespace hsql {
     kTriggerEventUpdate
   };
 
+  struct IndexedColumn {
+    IndexedColumn(char *name, OrderType order);
+    ~IndexedColumn();
+
+    char *name;
+    char *collation;
+    OrderType order;
+  };
+
   // Represents SQL Create statements.
   // Example: "CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)"
   struct CreateStatement : SQLStatement {
@@ -156,8 +165,8 @@ namespace hsql {
     char* tableName;     // default: nullptr
 
     // CREATE INDEX variables
-    char* indexName;                    // default: nullptr
-    std::vector<char*> *indexedColumns; // default: nullptr
+    char* indexName;                             // default: nullptr
+    std::vector<IndexedColumn*> *indexedColumns; // default: nullptr
 
     // CREATE TABLE variables
     std::vector<ColumnDefinition*>* columns;          // default: nullptr
